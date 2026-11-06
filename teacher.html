@@ -252,7 +252,8 @@ const DOMAIN = '@lupce8teen.app';
 const GUARDIAN_PW = pin => 'L8T-' + pin;          // a 5-digit PIN is stretched to Firebase's 6-character minimum
 const MAX_CHILDREN = 5, DUE_DAY = 5;
 
-const app = initializeApp(firebaseConfig);
+// each Lupce app keeps its own log-in, so the admin and teacher apps can stay open on the same computer
+const app = initializeApp(firebaseConfig, 'lupce-teacher');
 const auth = getAuth(app);
 // offline-first: marks are saved on the device at once and sent by themselves whenever there is internet
 const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
@@ -316,7 +317,11 @@ $('lgGo').onclick = async () => {
 $('lgPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgGo').click(); });
 $('logout').onclick = () => signOut(auth);
 
+let lastUid = null;
 onAuthStateChanged(auth, async user => {
+  // Firebase can report the same log-in again (e.g. after refreshing it); keep the page where it is
+  if (user && lastUid === user.uid && me) return;
+  lastUid = user ? user.uid : null;
   unsub.concat(weekUnsub).forEach(f => f && f()); unsub = []; weekUnsub = [];
   if (!user){ me = profile = null; $('loginView').hidden = false; $('appView').hidden = true; return; }
   me = user;
