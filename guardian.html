@@ -102,7 +102,7 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:16px;font-weight:60
 .feeAmt span{font-size:16px;color:var(--muted)}
 .hist{display:flex;flex-direction:column;gap:4px;font-size:16px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
 .hist div{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.tbl{overflow-x:auto}
+.tbl{overflow-x:auto;overflow-y:hidden}
 table{width:100%;border-collapse:collapse;font-size:16px;font-variant-numeric:tabular-nums}
 th,td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 th{color:var(--muted);font-weight:600}
@@ -441,6 +441,7 @@ function renderFri(){
 }
 
 // ---------- teacher's marks: last week + month by month ----------
+const friOf = m => m.friday || (() => { const d = new Date(+m.weekStart.slice(0, 4), +m.weekStart.slice(5, 7) - 1, +m.weekStart.slice(8, 10) + 6); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 function renderMarks(){
   const k = kid(); if (!k) return;
   const mine = marks.filter(m => m.studentId === k.id).sort((a, b) => b.weekStart.localeCompare(a.weekStart));
@@ -454,7 +455,7 @@ function renderMarks(){
     $('lastNote').textContent = '';
   } else { $('lastH').textContent = 'শেষ সপ্তাহের নম্বর'; $('lastSum').innerHTML = ''; $('lastNote').textContent = 'শিক্ষক এখনো কোনো নম্বর দেননি। শুক্রবারের পর নম্বর দিলে এখানে নিজে থেকে দেখাবে।'; }
   const y = nowYear(), per = Array.from({ length: 12 }, () => ({ got: 0, tot: 0 }));
-  mine.filter(m => m.weekStart.startsWith(String(y))).forEach(m => { const mo = +m.weekStart.slice(5, 7) - 1; per[mo].got += (m.read || 0) + (m.att === 'present' ? (m.pres || 0) : 0); per[mo].tot += m.att === 'leave' ? 5 : 10; });
+  mine.filter(m => friOf(m).startsWith(String(y))).forEach(m => { const mo = +friOf(m).slice(5, 7) - 1; per[mo].got += (m.read || 0) + (m.att === 'present' ? (m.pres || 0) : 0); per[mo].tot += m.att === 'leave' ? 5 : 10; });
   const G = per.reduce((a, x) => a + x.got, 0), T = per.reduce((a, x) => a + x.tot, 0), pct = T ? Math.round(G / T * 100) : 0;
   $('yearH').textContent = `${bn(y)} সালের ফলাফল`;
   $('yearTbl').innerHTML = T ? `<table><thead><tr><th>মাস</th><th>পেয়েছে</th><th>মোট</th><th>শতকরা</th></tr></thead><tbody>${per.map((x, i) => x.tot ? `<tr><td>${months[i]}</td><td>${bn(x.got)}</td><td>${bn(x.tot)}</td><td>${bn(Math.round(x.got / x.tot * 100))}%</td></tr>` : '').join('')}</tbody>
