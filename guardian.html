@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lupce-Guardian</title>
+<meta name="theme-color" content="#1f7a5a">
+<link rel="manifest" href="manifest-guardian.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width column; main page = child + menu; every inner page has back buttons top and bottom */
+:root{
+  --bg:#eef3ef; --surface:#ffffff; --ink:#17302a; --muted:#5b6f68; --line:#d5e0da;
+  --leaf:#1f7a5a; --leaf-soft:#dcefe6; --mango:#f2a516; --mango-soft:#fdf0d3;
+  --good:#1f7a5a; --bad:#b3372b; --bad-soft:#f8e1de; --fill:#1f7a5a; --on-fill:#ffffff;
+  --display:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
+  --body:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1a17; --surface:#16241f; --ink:#e4efe9; --muted:#a9bcb4; --line:#2a3b35;
+  --leaf:#4fc193; --leaf-soft:#1b3a2f; --mango:#f5b83d; --mango-soft:#3a2f17;
+  --good:#4fc193; --bad:#ff9384; --bad-soft:#5a2620; --fill:#146b4c; --on-fill:#ffffff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a17; --surface:#16241f; --ink:#e4efe9; --muted:#a9bcb4; --line:#2a3b35;
+  --leaf:#4fc193; --leaf-soft:#1b3a2f; --mango:#f5b83d; --mango-soft:#3a2f17;
+  --good:#4fc193; --bad:#ff9384; --bad-soft:#5a2620; --fill:#146b4c; --on-fill:#ffffff; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+.app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.app .app{width:100%;max-width:none}
+.brand{font-family:var(--display);font-weight:700;font-size:24px;color:var(--leaf);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:16px;color:var(--muted);margin-top:-4px}
+.net{font-size:15px;font-weight:600;border-radius:12px;padding:6px 12px;background:var(--leaf-soft);color:var(--ink);text-align:right}
+.net.off{background:var(--mango-soft)}
+select,input{font:inherit;font-size:17px;width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:7px 10px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:16px;font-weight:600;min-width:0}
+.student{background:var(--fill);color:var(--on-fill);border-radius:16px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:4px 12px}
+.student .name{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.2}
+.student .roll{font-variant-numeric:tabular-nums;font-size:17px;letter-spacing:.5px;opacity:.95}
+.student .meta{grid-column:1/-1;font-size:16px;opacity:.92}
+.student .age{align-self:start;background:rgba(255,255,255,.18);border-radius:999px;padding:2px 10px;font-size:16px;white-space:nowrap}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.menu button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.menu button b{font-family:var(--display);font-size:20px;color:var(--leaf);line-height:1.25}
+.menu button span{font-size:15px;color:var(--muted);line-height:1.4}
+.menu button span.due-s{color:#c2473a;font-weight:700}
+.menu button:last-child:nth-child(odd){grid-column:1/-1}
+.back{font:inherit;font-size:17px;font-weight:600;align-self:flex-start;background:var(--surface);color:var(--ink);border:2px solid var(--leaf);border-radius:12px;padding:6px 14px;cursor:pointer}
+.back.wide{align-self:stretch;padding:10px}
+.pageT{font-family:var(--display);font-size:22px;font-weight:700;margin:0}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:6px 0 8px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-width:0}
+.day:disabled{opacity:.45;cursor:not-allowed}
+.day .dn{font-size:14px;color:var(--muted)}
+.day .dd{font-weight:700;font-size:20px;line-height:1.3;font-variant-numeric:tabular-nums}
+.day .dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.day.ok .dot{background:var(--good)} .day.miss .dot{background:var(--bad)}
+.day.fri{background:var(--mango-soft);border-color:transparent}
+.day.fri .dot{background:var(--mango)}
+.day[aria-pressed="true"]{outline:2px solid var(--leaf);outline-offset:1px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.card h2{margin:0;font-family:var(--display);font-size:20px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h2 .tag{font-family:var(--body);font-size:16px;font-weight:600;color:var(--leaf);background:var(--leaf-soft);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.where{font-size:17px;color:var(--muted)} .where b{color:var(--ink);font-variant-numeric:tabular-nums}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.row .lbl{font-weight:600}
+.tog{display:flex;gap:6px;flex-shrink:0}
+.tog button{font:inherit;font-size:17px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:6px 12px;cursor:pointer;min-width:70px}
+.tog button.y[aria-pressed="true"]{background:var(--leaf-soft);border-color:var(--good);color:var(--good);font-weight:700}
+.tog button.n[aria-pressed="true"]{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700}
+.tog button:disabled{opacity:.4;cursor:not-allowed}
+.points{border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.points .ttl{font-size:16px;color:var(--muted)}
+.btn{font:inherit;font-weight:600;font-size:17px;border:0;border-radius:14px;padding:12px;background:var(--fill);color:var(--on-fill);cursor:pointer}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn.ghost{background:var(--surface);color:var(--ink);border:2px solid var(--leaf)}
+.msg{font-size:16px;text-align:center;min-height:1.5em;color:var(--good)}
+.msg.err{color:var(--bad)}
+.note{font-size:16px;color:var(--muted)}
+.fri-card{background:var(--mango-soft);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.fri-card h2{margin:0;font-family:var(--display);font-size:20px}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.summary div{background:var(--bg);border-radius:12px;padding:8px 4px}
+.summary b{display:block;font-family:var(--display);font-size:22px;color:var(--leaf);font-variant-numeric:tabular-nums}
+.summary span{font-size:15px;color:var(--muted)}
+.sync{font-size:17px;font-weight:600;border-radius:12px;padding:10px 12px;background:var(--bg)}
+.due{background:#b3372b;color:#ffffff;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.due .dueT{font-family:var(--display);font-size:21px;font-weight:700;line-height:1.3}
+.due .dueT b{font-size:26px;font-variant-numeric:tabular-nums}
+.due .dueM{font-size:17px;line-height:1.5}
+.due .dueF{font-size:15px;opacity:.92}
+.due .btn{background:#ffffff;color:#8f2a20;margin-top:4px}
+.feeAmt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.feeAmt b{font-family:var(--display);font-size:32px;color:var(--leaf);font-variant-numeric:tabular-nums}
+.feeAmt span{font-size:16px;color:var(--muted)}
+.hist{display:flex;flex-direction:column;gap:4px;font-size:16px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.hist div{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:16px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--muted);font-weight:600}
+tfoot td{font-weight:700;border-top:2px solid var(--leaf)}
+.grade{text-align:center;font-family:var(--display);font-size:22px;font-weight:700;color:var(--leaf)}
+.login .lt{font-family:var(--display);font-size:24px;font-weight:700;color:var(--leaf);line-height:1.2}
+#lgPw{font-size:24px;letter-spacing:8px;text-align:center;font-variant-numeric:tabular-nums}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--mango);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- login -->
+  <section class="card login" id="loginView">
+    <div class="lt">Lupce8Teen<br>অভিভাবকের লগইন</div>
+    <label class="f" for="lgPhone">ফোন নম্বর<input id="lgPhone" inputmode="tel" autocomplete="username" placeholder="01XXXXXXXXX"></label>
+    <label class="f" for="lgPw">৫ অংকের পাসওয়ার্ড<input type="password" id="lgPw" inputmode="numeric" maxlength="5" autocomplete="current-password"></label>
+    <button class="btn" id="lgGo">ঢুকুন</button>
+    <div class="msg" id="lgMsg" role="status"></div>
+    <div class="note">পাসওয়ার্ড দেবেন আপনার সন্তানের শিক্ষক বা Lupce এডমিন। ভুলে গেলে তাঁদের কাছ থেকে নতুন পাসওয়ার্ড নিন। প্রথমবার ঢুকতে ইন্টারনেট লাগবে, এরপর ইন্টারনেট ছাড়াও চলবে।</div>
+  </section>
+
+  <div id="appView" class="app" hidden>
+    <!-- red box: fee unpaid after the 5th and the teacher has sent a reminder -->
+    <section class="due" id="due" hidden role="alert">
+      <div class="dueT">মাসিক ফি বকেয়া: <b id="dueAmt"></b></div>
+      <div class="dueM" id="dueM"></div>
+      <div class="dueF" id="dueF"></div>
+      <button class="btn" id="duePay">ফি দেওয়ার নিয়ম দেখুন ›</button>
+    </section>
+
+    <div class="brand"><div>Lupce8Teen<small id="who">অভিভাবকের অ্যাপ</small></div><span class="net" id="net"></span></div>
+
+    <label class="f" for="child" id="childRow">সন্তান<select id="child"></select></label>
+    <section class="student" id="hero">
+      <div class="name" id="sName"></div>
+      <div class="age" id="sAge"></div>
+      <div class="roll" id="sRoll"></div>
+      <div class="meta" id="sMeta"></div>
+    </section>
+    <div class="note" id="noKids" hidden>এই ফোন নম্বরে এখনো কোনো শিক্ষার্থী নেই। শিক্ষকের সাথে যোগাযোগ করুন।</div>
+
+    <nav class="menu" id="menu" aria-label="মূল পাতা">
+      <button data-t="study"><b>আজকের পড়া</b><span>পড়েছে / পেরেছে তুলে রাখুন</span></button>
+      <button data-t="marks"><b>শিক্ষকের নম্বর</b><span>সপ্তাহ, মাস ও বছরের ফলাফল</span></button>
+      <button data-t="fee"><b>মাসিক ফি</b><span id="feeMenuS"></span></button>
+    </nav>
+    <button class="back" id="backTop" hidden>‹ মূল পাতায় ফিরুন</button>
+    <h1 class="pageT" id="pageT" hidden></h1>
+
+    <!-- daily study -->
+    <div class="app" data-p="study" hidden>
+      <nav class="week" id="week" aria-label="এই সপ্তাহের দিন"></nav>
+      <div class="app" id="studyView">
+        <div class="card" id="holCard" hidden><div id="holT"></div></div>
+        <section class="card" id="engCard">
+          <h2>ইংরেজি <span class="tag">২ ঘণ্টা</span></h2>
+          <div class="where">আজকের পড়া: <b id="engWhere"></b></div>
+          <div class="row"><span class="lbl">পড়েছে?</span>
+            <div class="tog" data-k="eng"><button class="y" aria-pressed="false">✓ হ্যাঁ</button><button class="n" aria-pressed="false">✗ না</button></div></div>
+          <div class="points" id="engPoints"></div>
+        </section>
+        <section class="card" id="secCard">
+          <h2><span id="secTitle">নিজের ভাষায় কুরআন শিখি</span> <span class="tag">১ ঘণ্টা</span></h2>
+          <label class="f" for="secPart"><span id="secPartLbl">আজ কোন অংশ পড়ল (সূরা বা পাতা)</span>
+            <input id="secPart" placeholder="যেমন: সূরা আল-ফীল, আয়াত ১–৫"></label>
+          <div class="row"><span class="lbl">পড়েছে?</span>
+            <div class="tog" data-k="quran"><button class="y" aria-pressed="false">✓ হ্যাঁ</button><button class="n" aria-pressed="false">✗ না</button></div></div>
+          <div class="row"><span class="lbl">পেরেছে?</span>
+            <div class="tog" data-k="quranOk"><button class="y" aria-pressed="false">✓ হ্যাঁ</button><button class="n" aria-pressed="false">✗ না</button></div></div>
+        </section>
+        <button class="btn" id="save">সংরক্ষণ করুন</button>
+        <div class="msg" id="msg" role="status"></div>
+      </div>
+      <section class="fri-card" id="friView" hidden>
+        <h2>আজ শুক্রবার — মিলনায়তনের দিন</h2>
+        <div>আজ বাড়িতে পড়া নেই। শিক্ষার্থী মিলনায়তনে সপ্তাহের পড়া থেকে উপস্থাপন করবে।</div>
+        <div class="summary" id="weekSum"></div>
+        <div class="sync" id="syncState"></div>
+        <div class="note">মিলনায়তনে থাকুন বা না থাকুন, প্রতি শুক্রবার একবার ইন্টারনেট চালু করে অ্যাপটা খুলুন — তথ্য নিজে থেকেই শিক্ষকের কাছে চলে যাবে।</div>
+      </section>
+    </div>
+
+    <!-- teacher's marks -->
+    <section class="card" data-p="marks" hidden>
+      <h2 id="lastH">শেষ সপ্তাহের নম্বর</h2>
+      <div class="summary" id="lastSum"></div>
+      <div class="note" id="lastNote"></div>
+    </section>
+    <section class="card" data-p="marks" hidden>
+      <h2 id="yearH"></h2>
+      <div class="tbl" id="yearTbl"></div>
+    </section>
+
+    <!-- monthly fee -->
+    <section class="card" data-p="fee" hidden>
+      <h2>মাসিক ফি <span class="tag" id="feeTag"></span></h2>
+      <div class="feeAmt"><b id="feeAmt"></b><span id="feeFor"></span></div>
+      <div class="note">এক অভিভাবকের ১ থেকে ৫ জন সন্তান ভর্তি থাকলেও মাসিক ফি একটাই। প্রতি মাসের ৫ তারিখের মধ্যে দিতে হয়।</div>
+      <div class="card" id="howPay" style="background:var(--bg)">
+        <b>কীভাবে দেবেন</b>
+        <div id="payHow"></div>
+        <div class="note">Lupce অ্যাপ কখনো আপনার বিকাশ/নগদের পিন বা OTP চাইবে না। কাউকে পিন জানাবেন না।</div>
+      </div>
+      <div class="hist" id="payHist"></div>
+    </section>
+
+    <button class="back wide" id="backBot" hidden>‹ মূল পাতায় ফিরুন</button>
+    <button class="back wide" id="logout">লগআউট</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, setDoc, onSnapshot, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxHk_qTbHqmm2LfVkgUlt96ny8cOkjkLc",
+  authDomain: "lupce8teen-fa311.firebaseapp.com",
+  projectId: "lupce8teen-fa311",
+  storageBucket: "lupce8teen-fa311.firebasestorage.app",
+  messagingSenderId: "341115169278",
+  appId: "1:341115169278:web:8028658e273f72295f38af"
+};
+const GUARDIAN_PW = pin => 'L8T-' + pin;
+const DUE_DAY = 5;
+
+// each Lupce app keeps its own log-in, so several apps can stay open on the same device
+const app = initializeApp(firebaseConfig, 'lupce-guardian');
+const auth = getAuth(app);
+// offline-first: daily entries are saved on the phone and sent by themselves whenever there is internet
+const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+
+const $ = id => document.getElementById(id);
+const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const toEn = s => String(s || '').replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)).replace(/\D/g, '');
+const p2 = n => String(n).padStart(2, '0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const say = (el, text, err) => { el.textContent = text; el.classList.toggle('err', !!err); };
+const nowYear = () => new Date().getFullYear();
+const ageOf = (s, y = nowYear()) => s.admitAge + (y - s.admitYear);          // goes up by one every 1 January
+const roll = s => `V${p2(s.v)}-U${p2(s.u)}-${p2(ageOf(s))}-${String(s.serial).padStart(3, '0')}`;
+const months = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const dayNames = ['রবি','সোম','মঙ্গল','বুধ','বৃহঃ','শুক্র','শনি'];
+const ym = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}`;
+const iso = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const toDate = t => t && t.toDate ? t.toDate() : t ? new Date(t) : null;
+const studyDay = d => { let n = 0; for (let x = 1; x <= d.getDate(); x++) if (new Date(d.getFullYear(), d.getMonth(), x).getDay() !== 5) n++; return n; };
+function storyAt(s, d){
+  if (ageOf(s, d.getFullYear()) >= 10) return null;
+  const am = s.admitMonth || ((toDate(s.createdAt) || new Date()).getMonth() + 1);
+  const n = (s.admitAge - 6) * 12 + 1 + (d.getFullYear() - s.admitYear) * 12 + (d.getMonth() + 1 - am);
+  return Math.max(1, Math.min(48, n));
+}
+const partOf = st => 'English Part ' + 'ABCD'[Math.floor((st - 1) / 12)];
+const grade = p => p >= 90 ? 'অসাধারণ' : p >= 80 ? 'খুব ভালো' : p >= 70 ? 'ভালো' : p >= 60 ? 'সন্তোষজনক' : 'আরও চেষ্টা দরকার';
+
+// this week: Saturday ... Friday
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const sat = addDays(today, -((today.getDay() + 1) % 7));
+const week = Array.from({ length: 7 }, (_, i) => addDays(sat, i));
+const WS = iso(sat);
+let sel = week.findIndex(d => +d === +today); if (sel < 0) sel = 0;
+
+let me = null, profile = null, phone = '';
+let settings = { fee: 500, leaveLimit: 6, holidays: [], areas: [] };
+let kids = [], child = null, entries = {}, marks = [], fees = {}, notice = null;
+let unsub = [];
+
+// ---------- connection badge ----------
+let pending = false;
+function renderNet(){
+  const on = navigator.onLine;
+  $('net').className = 'net' + (on ? '' : ' off');
+  $('net').textContent = !on ? (pending ? '● ইন্টারনেট নেই — তথ্য ফোনে জমা' : '● ইন্টারনেট নেই') : pending ? '↻ তথ্য পাঠানো হচ্ছে…' : '✓ সব তথ্য পাঠানো হয়েছে';
+  if (!$('friView').hidden) renderFri();
+}
+addEventListener('online', renderNet); addEventListener('offline', renderNet);
+
+// ---------- login: phone + 5-digit password from the teacher or admin ----------
+$('lgGo').onclick = async () => {
+  const ph = toEn($('lgPhone').value), pin = toEn($('lgPw').value);
+  if (ph.length !== 11){ say($('lgMsg'), '১১ অংকের ফোন নম্বর দিন।', true); return; }
+  if (pin.length !== 5){ say($('lgMsg'), 'পাসওয়ার্ড ৫ অংকের।', true); return; }
+  if (!navigator.onLine){ say($('lgMsg'), 'প্রথমবার ঢুকতে ইন্টারনেট লাগবে।', true); return; }
+  $('lgGo').disabled = true; say($('lgMsg'), 'ঢোকা হচ্ছে…');
+  try {
+    const l = await getDoc(doc(db, 'logins', ph));
+    if (!l.exists()) throw { mine: 'এই ফোন নম্বরে Lupce-এ কোনো শিক্ষার্থী ভর্তি নেই। শিক্ষকের সাথে যোগাযোগ করুন।' };
+    await signInWithEmailAndPassword(auth, l.data().email, GUARDIAN_PW(pin));
+    $('lgPw').value = '';
+  } catch(e){
+    say($('lgMsg'), e.mine || 'ফোন নম্বর বা পাসওয়ার্ড মিলছে না। আবার দিন, বা শিক্ষকের কাছ থেকে নতুন পাসওয়ার্ড নিন।', true);
+  }
+  $('lgGo').disabled = false;
+};
+$('lgPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgGo').click(); });
+$('logout').onclick = () => signOut(auth);
+
+let lastUid = null;
+onAuthStateChanged(auth, async user => {
+  if (user && lastUid === user.uid && me) return;
+  lastUid = user ? user.uid : null;
+  unsub.forEach(f => f && f()); unsub = [];
+  if (!user){ me = profile = null; $('loginView').hidden = false; $('appView').hidden = true; return; }
+  me = user;
+  let snap = null;
+  try { snap = await getDoc(doc(db, 'users', user.uid)); }
+  catch(e){ say($('lgMsg'), 'তথ্য আনা যায়নি। ইন্টারনেট চালু করে আবার খুলুন।', true); $('loginView').hidden = false; return; }
+  profile = snap.exists() ? snap.data() : null;
+  if (!profile){ say($('lgMsg'), 'আপনার পাসওয়ার্ড বদলানো হয়েছে। নতুন পাসওয়ার্ড দিয়ে ঢুকুন।', true); me = null; lastUid = null; signOut(auth); return; }
+  if (profile.role !== 'guardian'){ say($('lgMsg'), 'এই অ্যাপ শুধু অভিভাবকের জন্য।', true); me = null; lastUid = null; signOut(auth); return; }
+  phone = profile.phone;
+  $('loginView').hidden = true; $('appView').hidden = false;
+  $('who').textContent = 'অভিভাবকের অ্যাপ · ' + (profile.name || '');
+  startListeners(); renderNet(); route();
+});
+
+// ---------- data that stays in sync by itself ----------
+function startListeners(){
+  const on = (q, f) => unsub.push(onSnapshot(q, { includeMetadataChanges: true }, f, () => {}));
+  on(doc(db, 'settings', 'app'), s => { if (s.exists()) settings = Object.assign({ fee: 500, leaveLimit: 6, holidays: [], areas: [] }, s.data()); renderAll(); });
+  on(query(collection(db, 'students'), where('guardianPhone', '==', phone)), s => {
+    kids = s.docs.map(x => Object.assign({ id: x.id }, x.data())).sort((a, b) => a.serial - b.serial);
+    if (!kids.find(k => k.id === child)) child = kids.length ? kids[0].id : null;
+    renderAll();
+  });
+  on(query(collection(db, 'entries'), where('guardianPhone', '==', phone), where('weekStart', '==', WS)), s => {
+    entries = {}; s.docs.forEach(d => { const e = d.data(); (entries[e.studentId] = entries[e.studentId] || {})[e.date] = e; });
+    pending = s.metadata.hasPendingWrites; renderNet(); renderWeek();
+  });
+  on(query(collection(db, 'marks'), where('guardianPhone', '==', phone)), s => { marks = s.docs.map(d => d.data()); renderMarks(); });
+  on(query(collection(db, 'fees'), where('guardianPhone', '==', phone)), s => { fees = {}; s.docs.forEach(d => fees[d.data().month] = d.data()); renderFee(); });
+  on(query(collection(db, 'notices'), where('guardianPhone', '==', phone), where('month', '==', ym(today))), s => { notice = s.docs.length ? s.docs[0].data() : null; renderFee(); });
+}
+const kid = () => kids.find(k => k.id === child);
+// live updates never reset what the guardian is filling in; the day is redrawn only when they pick a day or a child
+function renderAll(){ renderChild(); renderFee(); renderMarks(); renderWeek(); }
+
+// ---------- child picker + card ----------
+function renderChild(){
+  const k = kid();
+  $('child').innerHTML = kids.map(x => `<option value="${x.id}" ${x.id === child ? 'selected' : ''}>${esc(x.name)} (${bn(ageOf(x))} বছর)</option>`).join('');
+  $('childRow').hidden = kids.length < 2;
+  $('hero').hidden = !k; $('noKids').hidden = !!k; $('menu').querySelectorAll('button').forEach(b => b.disabled = !k && b.dataset.t !== 'fee');
+  if (!k) return;
+  const st = storyAt(k, today);
+  $('sName').textContent = k.name; $('sRoll').textContent = 'রোল: ' + roll(k);
+  $('sAge').textContent = 'বয়স ' + bn(ageOf(k));
+  $('sMeta').textContent = `${k.district} › ${k.thana} · ` + (st ? partOf(st) + ' · Story ' + bn(p2(st)) : 'English ও আত্মউন্নয়নের বই');
+}
+$('child').onchange = () => { child = $('child').value; renderAll(); if (!$('week').parentElement.hidden) renderStudyPage(); };
+
+// ---------- daily study ----------
+const entry = (d) => (entries[child] || {})[iso(d)] || null;
+function renderWeek(){
+  const box = $('week'); box.innerHTML = '';
+  week.forEach((d, i) => {
+    const b = document.createElement('button'), fri = d.getDay() === 5, e = entry(d);
+    b.className = 'day' + (fri ? ' fri' : e ? (e.eng && e.quran ? ' ok' : ' miss') : '');
+    b.setAttribute('aria-pressed', i === sel); b.disabled = d > today;
+    b.innerHTML = `<span class="dn">${dayNames[d.getDay()]}</span><span class="dd">${bn(d.getDate())}</span><span class="dot"></span>`;
+    b.onclick = () => { sel = i; renderStudyPage(); };
+    box.appendChild(b);
+  });
+}
+let draft = {};
+function setTog(el, v){ const [y, n] = el.querySelectorAll('button'); y.setAttribute('aria-pressed', v === true); n.setAttribute('aria-pressed', v === false); }
+function bindTog(el, k){
+  const [y, n] = el.querySelectorAll('button');
+  y.onclick = () => { draft[k] = true; setTog(el, true); say($('msg'), ''); if (k === 'eng') renderPoints(); };
+  n.onclick = () => { draft[k] = false; setTog(el, false); say($('msg'), ''); if (k === 'eng') renderPoints(); };
+}
+function pos(d){
+  const k = kid(), st = storyAt(k, d), dy = studyDay(d);
+  return { st, dy, review: dy > 24, full: !!st && dy >= 9 && dy <= 24 };
+}
+function renderPoints(){
+  const d = week[sel], { st, dy, review, full } = pos(d), box = $('engPoints'), off = draft.eng === false;
+  box.innerHTML = `<div class="ttl">${!st ? 'আজকের পড়া পেরেছে কি না' : full ? 'পেরেছে কি না — বইয়ের "✅ Can I Do It?" অংশ দেখে' : review ? 'পেরেছে কি না (পুনরাবৃত্তির দিন)' : 'পেরেছে কি না (Day ১–৮)'}</div>`;
+  const list = full ? [1, 2, 3, 4].map(i => ['p' + i, 'Can I Do It? — পয়েন্ট ' + bn(i)]) : [['p1', 'আজকের পড়া পেরেছে?']];
+  list.forEach(([k, t]) => {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = `<span>${t}</span><div class="tog"><button class="y" aria-pressed="false">✓ পেরেছে</button><button class="n" aria-pressed="false">✗ পারেনি</button></div>`;
+    const tg = r.querySelector('.tog'); tg.querySelectorAll('button').forEach(b => b.disabled = off);
+    bindTog(tg, k); setTog(tg, off ? undefined : draft[k]); box.appendChild(r);
+  });
+}
+function renderStudyPage(){
+  const k = kid(); if (!k) return;
+  renderWeek();
+  const d = week[sel], fri = d.getDay() === 5;
+  $('studyView').hidden = fri; $('friView').hidden = !fri;
+  if (fri){ renderFri(); return; }
+  const hol = settings.holidays.find(h => h.date === iso(d));
+  $('holCard').hidden = !hol; if (hol) $('holT').textContent = `${hol.name} — বড় ছুটির দিন। আজ পড়া বাধ্যতামূলক নয়, পড়লে তুলে রাখতে পারেন।`;
+  const { st, dy, review } = pos(d), old = ageOf(k, d.getFullYear()) >= 10;
+  $('engWhere').textContent = !st ? `Day ${bn(dy)}` : review ? `পুনরাবৃত্তির দিন — Story ${bn(p2(st))} শেষ, নতুন Story শুরু হবে মাসের ১ তারিখে` : `Story ${bn(p2(st))} – Day ${bn(dy)}`;
+  $('secTitle').textContent = old ? 'আত্মউন্নয়নের বই' : 'নিজের ভাষায় কুরআন শিখি';
+  $('secPartLbl').textContent = old ? 'আজ বইয়ের কোন অংশ পড়ল (অধ্যায় বা পাতা)' : 'আজ কোন অংশ পড়ল (সূরা বা পাতা)';
+  $('secPart').placeholder = old ? 'যেমন: অধ্যায় ৩, পাতা ২০–২৫' : 'যেমন: সূরা আল-ফীল, আয়াত ১–৫';
+  const e = entry(d);
+  draft = e ? Object.assign({}, e.raw || {}, { eng: e.eng, quran: e.quran, quranOk: e.quranOk }) : {};
+  document.querySelectorAll('#studyView .tog[data-k]').forEach(t => { bindTog(t, t.dataset.k); setTog(t, draft[t.dataset.k]); });
+  $('secPart').value = e ? e.part || '' : '';
+  renderPoints();
+  say($('msg'), e ? 'এই দিনের তথ্য আগেই সংরক্ষিত আছে — চাইলে বদলাতে পারেন।' : '');
+}
+$('save').onclick = () => {
+  const k = kid(), d = week[sel]; if (!k || d.getDay() === 5) return;
+  if (draft.eng === undefined || draft.quran === undefined){ say($('msg'), 'দুটো অংশের "পড়েছে?" ঘরে উত্তর দিন।', true); return; }
+  const { st, dy, full } = pos(d), keys = full ? ['p1', 'p2', 'p3', 'p4'] : ['p1'];
+  if (draft.eng && keys.some(x => draft[x] === undefined)){ say($('msg'), 'ইংরেজির "পেরেছে কি না" সব ঘরে উত্তর দিন।', true); return; }
+  if (draft.quran && draft.quranOk === undefined){ say($('msg'), 'দ্বিতীয় অংশের "পেরেছে?" ঘরে উত্তর দিন।', true); return; }
+  const raw = {}; keys.forEach(x => raw[x] = !!draft[x]);
+  const e = { studentId: k.id, date: iso(d), weekStart: WS, day: dy, story: st || 0,
+              eng: !!draft.eng, pts: draft.eng ? keys.filter(x => draft[x]).length : 0, ptsTot: keys.length,
+              quran: !!draft.quran, quranOk: !!(draft.quran && draft.quranOk), part: $('secPart').value.trim(), raw,
+              teacherUid: k.teacherUid, guardianPhone: phone, at: serverTimestamp() };
+  // saved on the phone at once; Firebase sends it to the teacher by itself when there is internet
+  setDoc(doc(db, 'entries', `${k.id}_${e.date}`), e).catch(er => say($('msg'), 'সংরক্ষণ হয়নি: ' + (er.code || er.message), true));
+  (entries[k.id] = entries[k.id] || {})[e.date] = e;
+  say($('msg'), e.eng ? 'সংরক্ষিত — ফোনে জমা হয়েছে, ইন্টারনেট এলে শিক্ষকের কাছে যাবে। কাল পরের Day আসবে।'
+                          : 'সংরক্ষিত — আজ পড়া হয়নি। কাল পরের Day পড়তে হবে; আজকের পড়া নিজে পড়ে নিলে শিশুরই ভালো।');
+  renderWeek();
+};
+function renderFri(){
+  let done = 0, read = 0;
+  week.forEach(d => { if (d.getDay() === 5) return; const e = entry(d); if (e){ done++; if (e.eng) read++; } });
+  $('weekSum').innerHTML = `<div><b>${bn(done)}/৬</b><span>দিন তোলা হয়েছে</span></div><div><b>${bn(read)}/৬</b><span>ইংরেজি পড়েছে</span></div><div><b>${bn(6 - done)}</b><span>দিন বাকি</span></div>`;
+  $('syncState').textContent = !navigator.onLine ? '● ইন্টারনেট নেই। ইন্টারনেট চালু করুন — তথ্য নিজে থেকে চলে যাবে।'
+    : pending ? '↻ তথ্য পাঠানো হচ্ছে… অ্যাপটা একটু খোলা রাখুন।' : '✓ এ সপ্তাহের সব তথ্য শিক্ষকের কাছে পৌঁছে গেছে।';
+}
+
+// ---------- teacher's marks: last week + month by month ----------
+function renderMarks(){
+  const k = kid(); if (!k) return;
+  const mine = marks.filter(m => m.studentId === k.id).sort((a, b) => b.weekStart.localeCompare(a.weekStart));
+  const last = mine[0];
+  if (last){
+    const f = new Date(+last.weekStart.slice(0, 4), +last.weekStart.slice(5, 7) - 1, +last.weekStart.slice(8, 10) + 6);
+    $('lastH').textContent = `শুক্রবার ${bn(f.getDate())} ${months[f.getMonth()]}-এর নম্বর`;
+    const att = { present: 'উপস্থিত', absent: 'অনুপস্থিত', leave: 'ছুটি' }[last.att] || '';
+    $('lastSum').innerHTML = `<div><b>${bn(last.read)}/৫</b><span>সপ্তাহের পড়া</span></div><div><b>${last.att === 'present' ? bn(last.pres) + '/৫' : '–'}</b><span>উপস্থাপনা</span></div>` +
+      `<div><b>${last.att === 'leave' ? bn(last.read) + '/৫' : bn(last.read + (last.att === 'present' ? last.pres : 0)) + '/১০'}</b><span>মোট · ${att}</span></div>`;
+    $('lastNote').textContent = '';
+  } else { $('lastH').textContent = 'শেষ সপ্তাহের নম্বর'; $('lastSum').innerHTML = ''; $('lastNote').textContent = 'শিক্ষক এখনো কোনো নম্বর দেননি। শুক্রবারের পর নম্বর দিলে এখানে নিজে থেকে দেখাবে।'; }
+  const y = nowYear(), per = Array.from({ length: 12 }, () => ({ got: 0, tot: 0 }));
+  mine.filter(m => m.weekStart.startsWith(String(y))).forEach(m => { const mo = +m.weekStart.slice(5, 7) - 1; per[mo].got += (m.read || 0) + (m.att === 'present' ? (m.pres || 0) : 0); per[mo].tot += m.att === 'leave' ? 5 : 10; });
+  const G = per.reduce((a, x) => a + x.got, 0), T = per.reduce((a, x) => a + x.tot, 0), pct = T ? Math.round(G / T * 100) : 0;
+  $('yearH').textContent = `${bn(y)} সালের ফলাফল`;
+  $('yearTbl').innerHTML = T ? `<table><thead><tr><th>মাস</th><th>পেয়েছে</th><th>মোট</th><th>শতকরা</th></tr></thead><tbody>${per.map((x, i) => x.tot ? `<tr><td>${months[i]}</td><td>${bn(x.got)}</td><td>${bn(x.tot)}</td><td>${bn(Math.round(x.got / x.tot * 100))}%</td></tr>` : '').join('')}</tbody>
+    <tfoot><tr><td>সারা বছর</td><td>${bn(G)}</td><td>${bn(T)}</td><td>${bn(pct)}%</td></tr></tfoot></table><div class="grade">${grade(pct)}</div>` : '<div class="note">এ বছরের নম্বর এখনো আসেনি।</div>';
+}
+
+// ---------- monthly fee + the red reminder box ----------
+function renderFee(){
+  const m = ym(today), paid = fees[m] && fees[m].status === 'paid', label = `${months[today.getMonth()]} ${bn(today.getFullYear())}`;
+  $('feeAmt').textContent = '৳' + bn(settings.fee);
+  $('feeFor').textContent = `${label} · পরিবারের ${bn(kids.length)} জন সন্তানের জন্য`;
+  $('feeTag').textContent = paid ? 'পরিশোধিত' : 'বাকি';
+  $('feeMenuS').textContent = paid ? '✓ এ মাসের ফি পরিশোধিত' : `এ মাসের ফি ৳${bn(settings.fee)} বাকি`;
+  $('feeMenuS').className = paid ? '' : 'due-s';
+  const show = !paid && today.getDate() > DUE_DAY && !!notice;
+  $('due').hidden = !show;
+  if (show){
+    $('dueAmt').textContent = '৳' + bn(notice.amount || settings.fee);
+    $('dueM').textContent = `সম্মানিত অভিভাবক, ${label}-এর মাসিক ফি ${bn(p2(DUE_DAY))} তারিখের মধ্যে পরিশোধ হয়নি। অনুগ্রহ করে দ্রুত পরিশোধ করুন।`;
+    $('dueF').textContent = notice.teacherName ? `— শিক্ষক: ${notice.teacherName}` : '';
+  }
+  $('howPay').hidden = paid;
+  $('payHow').innerHTML = settings.payNumber
+    ? `বিকাশ বা নগদে <b>${esc(settings.payNumber)}</b> নম্বরে ৳${bn(settings.fee)} পাঠান। তারপর লেনদেন নম্বর (TrxID) শিক্ষককে জানান। এডমিন নিশ্চিত করলে এখানে "পরিশোধিত" দেখাবে।`
+    : `ফি দিতে আপনার সন্তানের শিক্ষকের সাথে যোগাযোগ করুন (হাতে, বিকাশ বা নগদে)। বিকাশ/নগদে দিলে লেনদেন নম্বর (TrxID) শিক্ষককে জানান। এডমিন নিশ্চিত করলে এখানে "পরিশোধিত" দেখাবে।`;
+  const list = Object.values(fees).filter(f => f.status === 'paid').sort((a, b) => b.month.localeCompare(a.month));
+  $('payHist').innerHTML = '<div><b>আগের পরিশোধ</b></div>' + (list.length ? list.map(f => `<div><span>${months[+f.month.slice(5) - 1]} ${bn(f.month.slice(0, 4))} · ${esc(f.via || '')}</span><span>৳${bn(f.amount || settings.fee)}${f.tx ? ' · ' + esc(f.tx) : ''}</span></div>`).join('') : '<div>এখনো কোনো পরিশোধ নেই।</div>');
+}
+
+// ---------- pages: main -> inner page; back buttons top and bottom, the phone's back button works too ----------
+const pages = { study: ['study', 'আজকের পড়া'], marks: ['marks', 'শিক্ষকের নম্বর'], fee: ['fee', 'মাসিক ফি'] };
+let depth = 0, popping = false;
+function show(t){
+  if (t && t !== 'fee' && !kid()) t = null;
+  $('menu').hidden = !!t; $('backTop').hidden = $('backBot').hidden = $('pageT').hidden = !t; $('logout').hidden = !!t;
+  if (t) $('pageT').textContent = pages[t][1];
+  document.querySelectorAll('#appView > [data-p]').forEach(p => p.hidden = p.dataset.p !== t);
+  if (t === 'study'){ sel = Math.max(0, week.findIndex(d => +d === +today)); renderStudyPage(); }
+  if (t === 'marks') renderMarks(); if (t === 'fee') renderFee();
+  scrollTo(0, 0);
+}
+function route(){ const h = location.hash.slice(1); show(Object.keys(pages).find(k => pages[k][0] === h) || null); }
+function go(t){ try { history.pushState(null, '', '#' + pages[t][0]); depth++; } catch(e) {} show(t); }
+function back(){
+  if (depth > 0){ depth--; popping = true; try { history.back(); return; } catch(e) { popping = false; } }
+  try { history.replaceState(null, '', location.pathname); } catch(e) {}
+  show(null);
+}
+$('menu').querySelectorAll('button').forEach(b => b.onclick = () => go(b.dataset.t));
+$('backTop').onclick = $('backBot').onclick = back;
+$('duePay').onclick = () => go('fee');
+addEventListener('popstate', () => { if (!popping) depth = Math.max(0, depth - 1); popping = false; route(); });
+
+// ---------- works offline: keep the app itself on the phone ----------
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+renderNet();
+</script>
+</body>
+</html>

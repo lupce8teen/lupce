@@ -247,6 +247,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
       <h2>মাসিক ফি (প্রতি পরিবার)</h2>
       <div class="note">এক অভিভাবকের ১ থেকে ৫ জন সন্তান ভর্তি থাকলেও ফি একটাই।</div>
       <label class="f" for="feeAmt">প্রতি মাসের ফি (টাকা)<input id="feeAmt" type="number" min="0" step="10"></label>
+      <label class="f" for="feePay">ফি পাঠানোর বিকাশ/নগদ নম্বর (অভিভাবকের অ্যাপে দেখাবে, না থাকলে খালি রাখুন)<input id="feePay" inputmode="tel" placeholder="01XXXXXXXXX"></label>
       <button class="btn" id="feeSave">ফি সংরক্ষণ করুন</button>
       <div class="msg" id="feeMsg" role="status"></div>
     </section>
@@ -601,6 +602,7 @@ const fmtDate = d => `${bn(+d.slice(8))} ${months[+d.slice(5, 7) - 1]} ${bn(d.sl
 function renderSettings(){
   if (document.activeElement !== $('sLimit')) $('sLimit').value = settings.leaveLimit;
   if (document.activeElement !== $('feeAmt')) $('feeAmt').value = settings.fee;
+  if (document.activeElement !== $('feePay')) $('feePay').value = settings.payNumber || '';
   $('holList').innerHTML = settings.holidays.length ? settings.holidays.slice().sort((a, b) => a.date.localeCompare(b.date)).map(h => `<div class="item"><div class="top"><span class="n">${esc(h.name)}</span><span class="r">${fmtDate(h.date)}</span></div></div>`).join('') : '<div class="note">এখনো কোনো বড় ছুটি যোগ করা হয়নি।</div>';
 }
 $('sLimitSave').onclick = () => { const n = Math.max(0, Math.round(+$('sLimit').value || 0)); setDoc(doc(db, 'settings', 'app'), { leaveLimit: n }, { merge: true }); say($('sMsg'), `সংরক্ষিত: বছরে সর্বোচ্চ ${bn(n)}টি ছুটি।`); };
@@ -613,7 +615,7 @@ function watchFees(){
   const m = ym(new Date());
   unsub.fee = onSnapshot(query(collection(db, 'fees'), where('month', '==', m)), s => { feeDocs = {}; s.docs.forEach(d => feeDocs[d.data().guardianPhone] = Object.assign({ id: d.id }, d.data())); renderFee(); });
 }
-$('feeSave').onclick = () => { const n = Math.max(0, Math.round(+$('feeAmt').value || 0)); setDoc(doc(db, 'settings', 'app'), { fee: n }, { merge: true }); say($('feeMsg'), `সংরক্ষিত: প্রতি পরিবারের মাসিক ফি ৳${bn(n)}।`); };
+$('feeSave').onclick = () => { const n = Math.max(0, Math.round(+$('feeAmt').value || 0)), pn = toEn($('feePay').value); setDoc(doc(db, 'settings', 'app'), { fee: n, payNumber: pn }, { merge: true }); say($('feeMsg'), `সংরক্ষিত: প্রতি পরিবারের মাসিক ফি ৳${bn(n)}` + (pn ? ` · ফি পাঠানোর নম্বর ${pn}` : '') + '।'); };
 function renderFee(){
   const d = new Date(); $('feeMonthH').textContent = `${months[d.getMonth()]} ${bn(d.getFullYear())}-এর ফি`;
   const fam = {};
