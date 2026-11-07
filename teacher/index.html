@@ -363,7 +363,7 @@ function startListeners(){
     track('stu', s); renderAll();
   }, () => {}));
   // Friday leaves taken (for the yearly limit)
-  unsub.push(onSnapshot(query(collection(db, 'marks'), where('teacherUid', '==', me.uid), where('att', '==', 'leave')), s => {
+  unsub.push(onSnapshot(query(collection(db, 'marks'), where('teacherUid', '==', me.uid), where('att', '==', 'leave'), where('year', '==', nowYear())), s => {
     leaves = s.docs.map(d => d.data()); renderAll();
   }, () => {}));
   const m = ym(new Date());
@@ -485,7 +485,7 @@ $('save').onclick = () => {
   if (draft.read === undefined || (draft.att === 'present' && draft.pres === undefined)){ say($('msg'), 'পড়া ও উপস্থাপনা দুটোর নম্বর দিন।', true); return; }
   const ws = weekStart(), st = storyAt(s, friday);
   const m = { studentId: s.id, weekStart: ws, friday: iso(friday), att: draft.att, read: draft.read, pres: draft.att === 'present' ? draft.pres : 0,
-              story: st || 0, teacherUid: me.uid, guardianPhone: s.guardianPhone, at: serverTimestamp() };
+              story: st || 0, year: friday.getFullYear(), teacherUid: me.uid, guardianPhone: s.guardianPhone, at: serverTimestamp() };
   // saved on the device at once; Firebase sends it by itself when there is internet
   setDoc(doc(db, 'marks', `${s.id}_${ws}`), m).catch(e => say($('msg'), 'সংরক্ষণ হয়নি: ' + (e.code || e.message), true));
   marks[s.id] = m;

@@ -353,9 +353,15 @@ function startListeners(){
     entries = {}; s.docs.forEach(d => { const e = d.data(); (entries[e.studentId] = entries[e.studentId] || {})[e.date] = e; });
     pending = s.metadata.hasPendingWrites; renderNet(); renderWeek();
   });
-  on(query(collection(db, 'marks'), where('guardianPhone', '==', phone)), s => { marks = s.docs.map(d => d.data()); renderMarks(); });
+  marksOn = false;
   on(query(collection(db, 'fees'), where('guardianPhone', '==', phone)), s => { fees = {}; s.docs.forEach(d => fees[d.data().month] = d.data()); renderFee(); });
   on(query(collection(db, 'notices'), where('guardianPhone', '==', phone), where('month', '==', ym(today))), s => { notice = s.docs.length ? s.docs[0].data() : null; renderFee(); });
+}
+// the teacher's marks are read only when the marks page is opened (keeps daily reads low)
+let marksOn = false;
+function startMarks(){
+  if (marksOn || !phone) return; marksOn = true;
+  unsub.push(onSnapshot(query(collection(db, 'marks'), where('guardianPhone', '==', phone), where('year', '==', nowYear())), s => { marks = s.docs.map(d => d.data()); renderMarks(); }, () => { marksOn = false; }));
 }
 const kid = () => kids.find(k => k.id === child);
 // live updates never reset what the guardian is filling in; the day is redrawn only when they pick a day or a child
@@ -511,7 +517,7 @@ function show(t){
   if (t) $('pageT').textContent = pages[t][1];
   document.querySelectorAll('#appView > [data-p]').forEach(p => p.hidden = p.dataset.p !== t);
   if (t === 'study'){ sel = Math.max(0, week.findIndex(d => +d === +today)); renderStudyPage(); }
-  if (t === 'marks') renderMarks(); if (t === 'fee') renderFee();
+  if (t === 'marks'){ startMarks(); renderMarks(); } if (t === 'fee') renderFee();
   scrollTo(0, 0);
 }
 function route(){ const h = location.hash.slice(1); show(Object.keys(pages).find(k => pages[k][0] === h) || null); }

@@ -437,6 +437,22 @@ const goHome = () => { if (pushed){ pushed = false; try { history.back(); return
 $('backTop').onclick = $('backBot').onclick = goHome;
 addEventListener('popstate', fromHash);
 
+// ---------- removing a student also removes their daily entries and marks; if the family has no child left, the guardian's login is removed too ----------
+function alertMsg(box, text){ let m = box.querySelector('.am'); if (!m){ m = document.createElement('div'); m.className = 'note am'; m.style.width = '100%'; box.appendChild(m); } m.textContent = text; }
+async function removeStudent(s){
+  for (const c of ['entries', 'marks']){
+    const q = await getDocs(query(collection(db, c), where('studentId', '==', s.id)));
+    await Promise.all(q.docs.map(d => deleteDoc(doc(db, c, d.id))));
+  }
+  await deleteDoc(doc(db, 'students', s.id));
+  const left = await getDocs(query(collection(db, 'students'), where('guardianPhone', '==', s.guardianPhone)));
+  if (left.size === 0){
+    const l = await getDoc(doc(db, 'logins', s.guardianPhone));
+    if (l.exists()){ if (l.data().uid) await deleteDoc(doc(db, 'users', l.data().uid)).catch(() => {}); await deleteDoc(doc(db, 'logins', s.guardianPhone)); }
+    const n = await getDocs(query(collection(db, 'notices'), where('guardianPhone', '==', s.guardianPhone)));
+    await Promise.all(n.docs.map(d => deleteDoc(doc(db, 'notices', d.id))));
+  }
+}
 // ---------- students ----------
 let asking = null, pwOpen = null, pwNote = {};
 function teacherName(uid){ const t = teachers.find(x => x.uid === uid); return t ? t.name : '—'; }
@@ -457,7 +473,7 @@ function renderStudents(){
     if (asking === s.id){
       const a = document.createElement('div'); a.className = 'ask';
       a.innerHTML = `<span>${esc(s.name)}-কে মুছবেন? রোল ${roll(s)} আর কাউকে দেওয়া হবে না।</span><button class="btn small danger">হ্যাঁ, মুছুন</button><button class="btn small ghost">না</button>`;
-      a.querySelector('.danger').onclick = () => { deleteDoc(doc(db, 'students', s.id)); asking = null; };
+      a.querySelector('.danger').onclick = async () => { if (!navigator.onLine){ alertMsg(a, 'মুছতে ইন্টারনেট চালু করুন।'); return; } alertMsg(a, 'মোছা হচ্ছে…'); try { await removeStudent(s); asking = null; } catch(e){ alertMsg(a, 'মোছা যায়নি: ' + (e.code || e.message)); } };
       a.querySelector('.ghost').onclick = () => { asking = null; renderStudents(); };
       d.appendChild(a);
     }
@@ -558,9 +574,24 @@ $('aSave').onclick = async () => {
 function renderTeachers(){
   $('teaList').innerHTML = teachers.length ? teachers.map(t => {
     const n = students.filter(s => s.teacherUid === t.uid).length;
-    return `<div class="item"><div class="top"><span class="n">${esc(t.name)}</span><span class="pill">${bn(n)} জন (এই এলাকায়)</span></div><div class="r">ফোন: ${bn(t.phone)} · ${esc(t.district || '')} › ${esc(t.thana || '')}</div></div>`;
+    return `<div class="item" data-uid="${t.uid}"><div class="top"><span class="n">${esc(t.name)}</span><span class="pill">${bn(n)} জন (এই এলাকায়)</span></div><div class="r">ফোন: ${bn(t.phone)} · ${esc(t.district || '')} › ${esc(t.thana || '')}</div>` +
+      (askTea === t.uid ? `<div class="ask"><span>${esc(t.name)}-কে শিক্ষক তালিকা থেকে সরাবেন? তিনি আর শিক্ষকের অ্যাপে ঢুকতে পারবেন না।</span><button class="btn small danger tyes">হ্যাঁ, সরান</button><button class="btn small ghost tno">না</button></div>`
+                        : `<div class="acts"><button class="btn small danger tdel">শিক্ষক সরান</button></div>`) + `</div>`;
   }).join('') : '<div class="note">এখনো কোনো শিক্ষক নেই। নিচে যোগ করুন।</div>';
+  $('teaList').querySelectorAll('.item[data-uid]').forEach(el => {
+    const uid = el.dataset.uid, b = el.querySelector('.tdel'), y = el.querySelector('.tyes'), no = el.querySelector('.tno');
+    if (b) b.onclick = () => { askTea = uid; renderTeachers(); };
+    if (no) no.onclick = () => { askTea = null; renderTeachers(); };
+    if (y) y.onclick = async () => {
+      const box = el.querySelector('.ask');
+      if (!navigator.onLine){ alertMsg(box, 'সরাতে ইন্টারনেট চালু করুন।'); return; }
+      const has = await getDocs(query(collection(db, 'students'), where('teacherUid', '==', uid)));
+      if (has.size){ alertMsg(box, `এই শিক্ষকের কাছে এখনো ${bn(has.size)} জন শিক্ষার্থী আছে। আগে "শিক্ষার্থী" পাতা থেকে তাদের অন্য শিক্ষককে দিন বা মুছুন।`); return; }
+      await deleteDoc(doc(db, 'users', uid)); askTea = null;
+    };
+  });
 }
+let askTea = null;
 $('tSave').onclick = async () => {
   const name = $('tName').value.trim(), phone = toEn($('tPhone').value), pw = $('tPw').value;
   const district = $('tDist').value.trim(), thana = $('tThana').value.trim(), m = $('tMsg');
