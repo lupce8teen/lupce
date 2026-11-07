@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lupce-Teacher</title>
+<meta name="theme-color" content="#1d4e89">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width column; main page = menu of big boxes; every inner page has back buttons top and bottom */
+:root{
+  --bg:#eef3ef; --surface:#ffffff; --ink:#17302a; --muted:#5b6f68; --line:#d5e0da;
+  --leaf:#1f7a5a; --leaf-soft:#dcefe6; --mango:#f2a516; --mango-soft:#fdf0d3;
+  --good:#1f7a5a; --bad:#b3372b; --bad-soft:#f8e1de; --fill:#1f7a5a; --on-fill:#ffffff;
+  --display:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
+  --body:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1a17; --surface:#16241f; --ink:#e4efe9; --muted:#a9bcb4; --line:#2a3b35;
+  --leaf:#4fc193; --leaf-soft:#1b3a2f; --mango:#f5b83d; --mango-soft:#3a2f17;
+  --good:#4fc193; --bad:#ff9384; --bad-soft:#5a2620; --fill:#146b4c; --on-fill:#ffffff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a17; --surface:#16241f; --ink:#e4efe9; --muted:#a9bcb4; --line:#2a3b35;
+  --leaf:#4fc193; --leaf-soft:#1b3a2f; --mango:#f5b83d; --mango-soft:#3a2f17;
+  --good:#4fc193; --bad:#ff9384; --bad-soft:#5a2620; --fill:#146b4c; --on-fill:#ffffff; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+.app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.app .app{width:100%;max-width:none}
+.brand{font-family:var(--display);font-weight:700;font-size:24px;color:var(--leaf);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:16px;color:var(--muted);margin-top:-4px}
+.net{font-size:15px;font-weight:600;border-radius:12px;padding:6px 12px;background:var(--leaf-soft);color:var(--ink);text-align:right}
+.net.off{background:var(--mango-soft)}
+.hero{background:var(--fill);color:var(--on-fill);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.hero .t{font-family:var(--display);font-size:21px;font-weight:600;line-height:1.25}
+.hero .m{font-size:16px;opacity:.95}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.menu button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.menu button b{font-family:var(--display);font-size:20px;color:var(--leaf);line-height:1.25}
+.menu button span{font-size:15px;color:var(--muted);line-height:1.4}
+.menu button:last-child:nth-child(odd){grid-column:1/-1}
+.back{font:inherit;font-size:17px;font-weight:600;align-self:flex-start;background:var(--surface);color:var(--ink);border:2px solid var(--leaf);border-radius:12px;padding:6px 14px;cursor:pointer}
+.back.wide{align-self:stretch;padding:10px}
+.pageT{font-family:var(--display);font-size:22px;font-weight:700;margin:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.card h2{margin:0;font-family:var(--display);font-size:20px;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label.f{display:flex;flex-direction:column;gap:2px;font-size:16px;font-weight:600;min-width:0}
+input,select{font:inherit;font-size:17px;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 10px}
+input[readonly]{opacity:.8}
+.btn{font:inherit;font-weight:600;font-size:17px;border:0;border-radius:14px;padding:12px;background:var(--fill);color:var(--on-fill);cursor:pointer}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn.small{font-size:16px;padding:7px 12px;border-radius:10px;align-self:flex-start}
+.btn.ghost{background:var(--surface);color:var(--ink);border:2px solid var(--leaf)}
+.msg{font-size:16px;text-align:center;min-height:1.4em;color:var(--good)}
+.msg.err{color:var(--bad)}
+.note,.sub{font-size:16px;color:var(--muted)}
+.weeknav{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.weeknav b{text-align:center;font-size:17px}
+.weeknav .btn.small{align-self:center}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats button{font:inherit;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:8px 4px;cursor:pointer;min-width:0}
+.stats button[aria-pressed="true"]{border-color:var(--leaf);background:var(--leaf-soft)}
+.stats b{display:block;font-family:var(--display);font-size:24px;color:var(--leaf);font-variant-numeric:tabular-nums;line-height:1.3}
+.stats span{font-size:16px;color:var(--muted)}
+.listT{font-weight:700;font-size:17px}
+.list{display:flex;flex-direction:column;gap:8px}
+.stu{font:inherit;text-align:left;width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;cursor:pointer}
+.stu .n{font-weight:600}
+.stu .r{font-size:16px;color:var(--muted);font-variant-numeric:tabular-nums;grid-column:1}
+.chip{grid-row:1/3;grid-column:2;font-size:16px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.chip.wait{background:var(--leaf-soft);color:var(--leaf)}
+.chip.none{background:#b3372b;color:#ffffff}
+.chip.done{background:var(--fill);color:var(--on-fill)}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:16px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:15px;white-space:nowrap}
+th.grp{text-align:center;color:var(--ink);border-bottom:2px solid var(--leaf)}
+th[rowspan]{vertical-align:bottom}
+.y{color:var(--good);font-weight:700}.x{color:var(--bad);font-weight:700}
+.hint{font-size:16px;background:var(--leaf-soft);border-radius:10px;padding:8px 10px}
+.warn{font-size:17px;font-weight:600;color:var(--ink);background:var(--bad-soft);border-radius:10px;padding:8px 12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:20px;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:6px 12px;cursor:pointer;min-width:48px}
+#att button{font-size:17px}
+.seg button[aria-pressed="true"]{background:var(--fill);border-color:var(--fill);color:var(--on-fill)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.lbl{font-weight:600;font-size:19px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lbl span{font-weight:500;font-size:18px;color:var(--muted)}
+.total{font-size:19px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:10px}
+.total b{font-family:var(--display);font-size:28px;color:var(--leaf);font-variant-numeric:tabular-nums}
+.nav2{display:flex;gap:8px}.nav2 button{flex:1}
+.pwrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pwrow input{width:9em;font-size:20px;letter-spacing:4px;text-align:center;font-variant-numeric:tabular-nums}
+.pwrow .btn.small{align-self:center}
+.fam{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.fam:first-child{border-top:0;padding-top:0}
+.fam .n{font-weight:700}
+.fam .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
+.fam .amt{font-weight:700;color:#ffffff;background:#b3372b;border-radius:999px;padding:2px 10px;font-size:16px;white-space:nowrap}
+.fam .sent{font-size:16px;font-weight:600;color:var(--good)}
+.done{background:var(--leaf-soft);border-radius:12px;padding:12px;font-size:17px;display:flex;flex-direction:column;gap:4px}
+.done b.big{font-size:24px;letter-spacing:3px;font-variant-numeric:tabular-nums}
+.login .lt{font-family:var(--display);font-size:24px;font-weight:700;color:var(--leaf);line-height:1.2}
+#lgPw{font-size:20px;letter-spacing:2px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--mango);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- login -->
+  <section class="card login" id="loginView">
+    <div class="lt">Lupce8Teen<br>শিক্ষকের লগইন</div>
+    <label class="f" for="lgPhone">ফোন নম্বর<input id="lgPhone" inputmode="tel" autocomplete="username" placeholder="01XXXXXXXXX"></label>
+    <label class="f" for="lgPw">পাসওয়ার্ড<input type="password" id="lgPw" autocomplete="current-password"></label>
+    <button class="btn" id="lgGo">ঢুকুন</button>
+    <div class="msg" id="lgMsg" role="status"></div>
+    <div class="note">প্রথমবার ঢুকতে ইন্টারনেট লাগবে। এরপর ইন্টারনেট ছাড়াও অ্যাপ খুলবে, আর নম্বর দেওয়া যাবে। ইন্টারনেট এলে নিজে থেকেই সব পাঠানো হবে।</div>
+  </section>
+
+  <div id="appView" class="app" hidden>
+    <div class="brand"><div>Lupce8Teen<small id="who">শিক্ষকের অ্যাপ</small></div><span class="net" id="net"></span></div>
+
+    <!-- main page + inner pages -->
+    <div id="listView" class="app">
+      <section class="hero" id="heroMain">
+        <div class="t" id="heroT"></div>
+        <div class="m" id="heroM"></div>
+      </section>
+      <nav class="menu" id="menu" aria-label="মূল পাতা">
+        <button data-t="stu"><b>শিক্ষার্থী ও নম্বর</b><span>সপ্তাহের তথ্য, উপস্থিতি, নম্বর, পাসওয়ার্ড</span></button>
+        <button data-t="due"><b>মাসিক ফি বকেয়া</b><span>বকেয়া বার্তা পাঠানো</span></button>
+        <button data-t="add"><b>নতুন শিক্ষার্থী ভর্তি</b><span>রোল ও পাসওয়ার্ড নিজে থেকে আসবে</span></button>
+      </nav>
+      <button class="back" id="backTop" hidden>‹ মূল পাতায় ফিরুন</button>
+      <h1 class="pageT" id="pageT" hidden></h1>
+
+      <!-- students of this week -->
+      <section class="card" data-p="stu" hidden>
+        <div class="weeknav"><button class="btn small ghost" id="wkPrev">‹ আগের</button><b id="wkLabel"></b><button class="btn small ghost" id="wkNext">পরের ›</button></div>
+        <div class="stats" id="stats"></div>
+        <div class="list" id="list"></div>
+      </section>
+
+      <!-- fee dues -->
+      <section class="card" data-p="due" hidden>
+        <h2 id="dueH">মাসিক ফি বকেয়া</h2>
+        <div class="sub" id="dueNote"></div>
+        <div id="dueList"></div>
+        <button class="btn" id="dueAll" hidden>সব বকেয়া অভিভাবককে বার্তা পাঠান</button>
+        <div class="msg" id="dueMsg" role="status"></div>
+      </section>
+
+      <!-- admission -->
+      <section class="card" data-p="add" hidden>
+        <h2>নতুন শিক্ষার্থী ভর্তি</h2>
+        <label class="f" for="aName">শিক্ষার্থীর নাম<input id="aName"></label>
+        <label class="f" for="aParent">পিতা/মাতার নাম<input id="aParent"></label>
+        <label class="f" for="aPhone">অভিভাবকের ফোন নম্বর (লগইনের আইডি)<input id="aPhone" inputmode="tel" placeholder="01XXXXXXXXX"></label>
+        <div class="grid2">
+          <label class="f" for="aDist">জেলা<input id="aDist" readonly></label>
+          <label class="f" for="aThana">থানা<input id="aThana" readonly></label>
+        </div>
+        <div class="grid2">
+          <label class="f" for="aVil">গ্রাম নম্বর<input id="aVil" type="number" min="1" max="99" value="1"></label>
+          <label class="f" for="aUni">ইউনিয়ন নম্বর<input id="aUni" type="number" min="1" max="99" value="1"></label>
+        </div>
+        <label class="f" for="aAge">বয়স<select id="aAge"></select></label>
+        <label class="f" for="aPw">অভিভাবকের ৫ অংকের পাসওয়ার্ড (নিজে থেকে বানানো, চাইলে বদলান)<input id="aPw" inputmode="numeric" maxlength="5"></label>
+        <div class="note">অভিভাবক আগে থেকে Lupce-এ থাকলে তাঁর আগের পাসওয়ার্ডই থাকবে। রোল নম্বর সার্ভার নিজে থেকে দেবে।</div>
+        <button class="btn" id="aSave">ভর্তি করুন</button>
+        <div class="msg" id="aMsg" role="status"></div>
+        <div class="done" id="aDone" hidden></div>
+        <div class="note">ভর্তির জন্য ইন্টারনেট লাগবে। শিক্ষক কাউকে মুছতে পারেন না; মুছতে হলে এডমিনকে বলুন।</div>
+      </section>
+
+      <button class="back wide" id="backBot" hidden>‹ মূল পাতায় ফিরুন</button>
+      <button class="back wide" id="logout">লগআউট</button>
+    </div>
+
+    <!-- one student -->
+    <div id="detailView" class="app" hidden>
+      <button class="back" id="dBack">‹ তালিকায় ফিরুন</button>
+      <section class="hero">
+        <div class="t" id="dName"></div>
+        <div class="m" id="dRoll"></div>
+      </section>
+
+      <section class="card">
+        <h2>অভিভাবকের ৬ দিনের তথ্য</h2>
+        <div class="warn" id="noData" hidden>এই শিক্ষার্থীর সপ্তাহের তথ্য এখনো আসেনি। অভিভাবক ইন্টারনেট চালু করলে নিজে থেকে এখানে চলে আসবে।</div>
+        <div class="tbl" id="wkTbl"></div>
+        <div class="hint" id="hint"></div>
+      </section>
+
+      <section class="card">
+        <h2>শুক্রবারের উপস্থিতি</h2>
+        <div class="seg" id="att">
+          <button data-v="present">✓ উপস্থিত</button>
+          <button data-v="absent">✗ অনুপস্থিত</button>
+          <button data-v="leave">ছুটি</button>
+        </div>
+        <div class="sub" id="leaveInfo"></div>
+      </section>
+
+      <section class="card">
+        <h2>সাপ্তাহিক নম্বর</h2>
+        <div class="lbl">সপ্তাহের পড়া <span>৫-এর মধ্যে</span></div>
+        <div class="seg" id="mRead"></div>
+        <div class="lbl">শুক্রবারের উপস্থাপনা <span id="presNote">৫-এর মধ্যে</span></div>
+        <div class="seg" id="mPres"></div>
+        <div class="total"><span>এই সপ্তাহের মোট</span><b id="tot">–</b></div>
+        <button class="btn" id="save">নম্বর সংরক্ষণ করুন</button>
+        <div class="msg" id="msg" role="status"></div>
+        <div class="nav2"><button class="btn ghost" id="dBack2">‹ তালিকায় ফিরুন</button><button class="btn ghost" id="dNext">পরের শিক্ষার্থী ›</button></div>
+      </section>
+
+      <section class="card">
+        <h2>অভিভাবকের লগইন পাসওয়ার্ড</h2>
+        <div class="sub" id="pwState">অভিভাবক পাসওয়ার্ড ভুলে গেলে এখানে নতুন ৫ অংকের পাসওয়ার্ড দিন। একই ফোনের সব সন্তানের জন্য পাসওয়ার্ড একটাই। আগের পাসওয়ার্ড কেউ দেখতে পারে না।</div>
+        <div class="pwrow"><input id="pwIn" inputmode="numeric" maxlength="5" aria-label="৫ অংকের পাসওয়ার্ড"><button class="btn small ghost" id="pwGen">নিজে থেকে বানান</button><button class="btn small" id="pwSave">সংরক্ষণ</button></div>
+        <div class="msg" id="pwMsg" role="status"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, deleteApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, setDoc, deleteDoc, onSnapshot, query, where, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxHk_qTbHqmm2LfVkgUlt96ny8cOkjkLc",
+  authDomain: "lupce8teen-fa311.firebaseapp.com",
+  projectId: "lupce8teen-fa311",
+  storageBucket: "lupce8teen-fa311.firebasestorage.app",
+  messagingSenderId: "341115169278",
+  appId: "1:341115169278:web:8028658e273f72295f38af"
+};
+const DOMAIN = '@lupce8teen.app';
+const GUARDIAN_PW = pin => 'L8T-' + pin;          // a 5-digit PIN is stretched to Firebase's 6-character minimum
+const MAX_CHILDREN = 5, DUE_DAY = 5;
+
+// each Lupce app keeps its own log-in, so the admin and teacher apps can stay open on the same computer
+const app = initializeApp(firebaseConfig, 'lupce-teacher');
+const auth = getAuth(app);
+// offline-first: marks are saved on the device at once and sent by themselves whenever there is internet
+const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+
+const $ = id => document.getElementById(id);
+const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const toEn = s => String(s || '').replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)).replace(/\D/g, '');
+const p2 = n => String(n).padStart(2, '0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const say = (el, text, err) => { el.textContent = text; el.classList.toggle('err', !!err); };
+const newPin = () => String(Math.floor(10000 + Math.random() * 90000));
+const nowYear = () => new Date().getFullYear();
+const ageOf = (s, y = nowYear()) => s.admitAge + (y - s.admitYear);       // goes up by one every 1 January
+const roll = s => `V${p2(s.v)}-U${p2(s.u)}-${p2(ageOf(s))}-${String(s.serial).padStart(3, '0')}`;
+const months = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const dayNames = ['শনি','রবি','সোম','মঙ্গল','বুধ','বৃহঃ'];
+const ym = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}`;
+const iso = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const fromIso = s => new Date(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
+const shortDate = d => `${bn(d.getDate())} ${months[d.getMonth()]}`;
+// the latest Friday up to today; a week = Saturday to Thursday reading + the Friday gathering
+const lastFriday = d => addDays(d, -((d.getDay() + 2) % 7));
+// Day = the nth study day of the month (Fridays off); after Day 24 the remaining days are review days
+const studyDay = d => { let n = 0; for (let x = 1; x <= d.getDate(); x++) if (new Date(d.getFullYear(), d.getMonth(), x).getDay() !== 5) n++; return n; };
+const toDate = t => t && t.toDate ? t.toDate() : t ? new Date(t) : null;
+// one Story per month, starting on the 1st; ages 6-9 follow English Part A-D (Story 01-48)
+function storyAt(s, d){
+  if (ageOf(s, d.getFullYear()) >= 10) return null;
+  const am = s.admitMonth || ((toDate(s.createdAt) || new Date()).getMonth() + 1);
+  const n = (s.admitAge - 6) * 12 + 1 + (d.getFullYear() - s.admitYear) * 12 + (d.getMonth() + 1 - am);
+  return Math.max(1, Math.min(48, n));
+}
+
+let me = null, profile = null;
+let settings = { fee: 500, leaveLimit: 6, holidays: [], areas: [] };
+let students = [], entries = {}, marks = {}, leaves = [], feeDocs = {}, notices = {};
+let friday = lastFriday(new Date());
+const weekStart = () => iso(addDays(friday, -6));
+let unsub = [], weekUnsub = [];
+
+// ---------- connection badge ----------
+let pending = {};
+function renderNet(){
+  const on = navigator.onLine, wait = Object.values(pending).some(Boolean);
+  $('net').className = 'net' + (on ? '' : ' off');
+  $('net').textContent = !on ? (wait ? '● ইন্টারনেট নেই — নম্বর যন্ত্রে জমা, পরে যাবে' : '● ইন্টারনেট নেই') : wait ? '↻ তথ্য পাঠানো হচ্ছে…' : '✓ সব তথ্য সার্ভারে';
+}
+addEventListener('online', renderNet); addEventListener('offline', renderNet);
+const track = (name, s) => { pending[name] = s.metadata.hasPendingWrites; renderNet(); };
+
+// ---------- login ----------
+$('lgGo').onclick = async () => {
+  const ph = toEn($('lgPhone').value), pw = $('lgPw').value;
+  if (ph.length < 11 || !pw){ say($('lgMsg'), 'ফোন নম্বর আর পাসওয়ার্ড দিন।', true); return; }
+  $('lgGo').disabled = true; say($('lgMsg'), 'ঢোকা হচ্ছে…');
+  try { await signInWithEmailAndPassword(auth, ph + DOMAIN, pw); }
+  catch(e){ say($('lgMsg'), !navigator.onLine ? 'প্রথমবার ঢুকতে ইন্টারনেট লাগবে।' : 'ফোন নম্বর বা পাসওয়ার্ড মিলছে না। কীবোর্ড ইংরেজিতে আছে কি না দেখুন।', true); }
+  $('lgGo').disabled = false;
+};
+$('lgPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgGo').click(); });
+$('logout').onclick = () => signOut(auth);
+
+let lastUid = null;
+onAuthStateChanged(auth, async user => {
+  // Firebase can report the same log-in again (e.g. after refreshing it); keep the page where it is
+  if (user && lastUid === user.uid && me) return;
+  lastUid = user ? user.uid : null;
+  unsub.concat(weekUnsub).forEach(f => f && f()); unsub = []; weekUnsub = [];
+  if (!user){ me = profile = null; $('loginView').hidden = false; $('appView').hidden = true; return; }
+  me = user;
+  let snap = null;
+  try { snap = await getDoc(doc(db, 'users', user.uid)); }
+  catch(e){ say($('lgMsg'), 'তথ্য আনা যায়নি। ইন্টারনেট চালু করে আবার খুলুন।', true); $('loginView').hidden = false; return; }
+  profile = snap.exists() ? snap.data() : null;
+  if (!profile || profile.role !== 'teacher'){ say($('lgMsg'), 'এই অ্যাপ শুধু শিক্ষকের জন্য। এডমিন আগে আপনাকে শিক্ষক হিসেবে যোগ করবেন।', true); signOut(auth); return; }
+  $('loginView').hidden = true; $('appView').hidden = false;
+  $('who').textContent = 'শিক্ষকের অ্যাপ · ' + (profile.name || '');
+  $('heroT').textContent = profile.name || '';
+  $('aDist').value = profile.district || ''; $('aThana').value = profile.thana || '';
+  startListeners(); renderNet(); route();
+});
+
+// ---------- data that stays in sync by itself ----------
+function startListeners(){
+  unsub.push(onSnapshot(doc(db, 'settings', 'app'), s => {
+    if (s.exists()) settings = Object.assign({ fee: 500, leaveLimit: 6, holidays: [], areas: [] }, s.data());
+    renderAll();
+  }, () => {}));
+  unsub.push(onSnapshot(query(collection(db, 'students'), where('teacherUid', '==', me.uid)), { includeMetadataChanges: true }, s => {
+    students = s.docs.map(x => Object.assign({ id: x.id }, x.data())).sort((a, b) => (a.v - b.v) || (a.u - b.u) || (a.serial - b.serial));
+    track('stu', s); renderAll();
+  }, () => {}));
+  // Friday leaves taken (for the yearly limit)
+  unsub.push(onSnapshot(query(collection(db, 'marks'), where('teacherUid', '==', me.uid), where('att', '==', 'leave')), s => {
+    leaves = s.docs.map(d => d.data()); renderAll();
+  }, () => {}));
+  const m = ym(new Date());
+  unsub.push(onSnapshot(query(collection(db, 'fees'), where('month', '==', m)), s => {
+    feeDocs = {}; s.docs.forEach(d => feeDocs[d.data().guardianPhone] = d.data()); renderDue();
+  }, () => {}));
+  unsub.push(onSnapshot(query(collection(db, 'notices'), where('teacherUid', '==', me.uid), where('month', '==', m)), { includeMetadataChanges: true }, s => {
+    notices = {}; s.docs.forEach(d => notices[d.data().guardianPhone] = d.data()); track('not', s); renderDue();
+  }, () => {}));
+  watchWeek();
+}
+function watchWeek(){
+  weekUnsub.forEach(f => f()); weekUnsub = []; entries = {}; marks = {};
+  const ws = weekStart();
+  weekUnsub.push(onSnapshot(query(collection(db, 'entries'), where('teacherUid', '==', me.uid), where('weekStart', '==', ws)), s => {
+    entries = {}; s.docs.forEach(d => { const e = d.data(); (entries[e.studentId] = entries[e.studentId] || {})[e.date] = e; }); renderAll();
+  }, () => {}));
+  weekUnsub.push(onSnapshot(query(collection(db, 'marks'), where('teacherUid', '==', me.uid), where('weekStart', '==', ws)), { includeMetadataChanges: true }, s => {
+    marks = {}; s.docs.forEach(d => marks[d.data().studentId] = d.data()); track('mk', s); renderAll();
+  }, () => {}));
+  renderAll();
+}
+function renderAll(){
+  const holiday = settings.holidays.find(h => h.date === iso(friday));
+  $('heroM').textContent = `${bn(students.length)} জন শিক্ষার্থী · ${profile.district || ''} › ${profile.thana || ''}`;
+  $('wkLabel').textContent = `শুক্রবার ${shortDate(friday)}` + (holiday ? ` · ${holiday.name}` : '');
+  $('wkNext').disabled = iso(friday) >= iso(lastFriday(new Date()));
+  if (!$('listView').hidden) { renderList(); renderDue(); }
+  if (!$('detailView').hidden && cur) openStudent(cur, true);
+}
+$('wkPrev').onclick = () => { friday = addDays(friday, -7); watchWeek(); };
+$('wkNext').onclick = () => { if (!$('wkNext').disabled){ friday = addDays(friday, 7); watchWeek(); } };
+
+// ---------- the week's list ----------
+let view = 'all';
+const hasData = s => !!entries[s.id] && Object.keys(entries[s.id]).length > 0;
+function status(s){
+  const m = marks[s.id];
+  if (m) return ['done', m.att === 'leave' ? `${bn(m.read)}/৫ · ছুটি` : `${bn(m.read + (m.att === 'present' ? m.pres : 0))}/১০`];
+  if (!hasData(s)) return ['none', 'তথ্য আসেনি'];
+  return ['wait', 'নম্বর দিন'];
+}
+function renderList(){
+  const got = students.filter(hasData).length, done = students.filter(s => marks[s.id]).length;
+  const tile = (v, n, t) => `<button data-v="${v}" aria-pressed="${view === v}"><b>${bn(n)}</b><span>${t}</span></button>`;
+  $('stats').innerHTML = tile('all', students.length, 'শিক্ষার্থী') + tile('got', got, 'তথ্য এসেছে') + tile('left', students.length - done, 'নম্বর বাকি');
+  $('stats').querySelectorAll('button').forEach(b => b.onclick = () => { view = b.dataset.v; renderList(); });
+  const shown = students.filter(s => view === 'all' || (view === 'got' ? hasData(s) : !marks[s.id]));
+  const box = $('list');
+  box.innerHTML = `<div class="listT">${{ all: 'সব শিক্ষার্থী', got: 'যাদের তথ্য এসেছে', left: 'যাদের নম্বর দেওয়া বাকি' }[view]} (${bn(shown.length)})</div>`;
+  if (!students.length) box.innerHTML += '<div class="note">এখনো কোনো শিক্ষার্থী নেই। "নতুন শিক্ষার্থী ভর্তি" থেকে যোগ করুন, অথবা এডমিন আপনাকে শিক্ষার্থী দেবেন।</div>';
+  shown.forEach(s => {
+    const [c, t] = status(s);
+    const b = document.createElement('button'); b.className = 'stu';
+    b.innerHTML = `<span class="n">${esc(s.name)}</span><span class="chip ${c}">${t}</span><span class="r">${roll(s)}</span>`;
+    b.onclick = () => { go('one'); openStudent(s.id); };
+    box.appendChild(b);
+  });
+}
+
+// ---------- one student ----------
+let cur = null, draft = {};
+function leavesUsed(s){ const y = String(friday.getFullYear()); return leaves.filter(m => m.studentId === s.id && (m.weekStart || '').startsWith(y) && m.weekStart !== weekStart()).length; }
+function openStudent(id, refresh){
+  const s = students.find(x => x.id === id); if (!s){ return; }
+  if (!refresh || cur !== id){ cur = id; draft = Object.assign({}, marks[id] || {}); say($('msg'), ''); say($('pwMsg'), ''); $('pwIn').value = ''; scrollTo(0, 0); }
+  const st = storyAt(s, friday);
+  $('dName').textContent = s.name;
+  $('dRoll').textContent = `রোল: ${roll(s)} · ` + (st ? 'Story ' + bn(p2(st)) : 'English ১০+') + ` · শুক্রবার ${shortDate(friday)}`;
+  const e = entries[id] || {}, any = hasData(s);
+  $('noData').hidden = any; $('wkTbl').hidden = $('hint').hidden = !any;
+  if (any){
+    let rows = '', engDays = 0, qDays = 0, pts = 0, ptsTot = 0;
+    for (let k = 0; k < 6; k++){
+      const d = addDays(friday, k - 6), x = e[iso(d)], dy = studyDay(d), review = dy > 24;
+      if (x && x.eng){ engDays++; pts += x.pts || 0; ptsTot += x.ptsTot || 0; }
+      if (x && x.quran) qDays++;
+      const yn = v => x ? `<td class="${v ? 'y' : 'x'}">${v ? '✓' : '✗'}</td>` : '<td>–</td>';
+      rows += `<tr><td>${dayNames[k]}</td><td>${review ? 'পুনরাবৃত্তি' : bn(dy)}</td>${yn(x && x.eng)}<td>${x && x.eng ? bn(x.pts || 0) + '/' + bn(x.ptsTot || 0) : '–'}</td>${yn(x && x.quran)}${yn(x && x.quranOk)}</tr>`;
+    }
+    $('wkTbl').innerHTML = `<table><thead><tr><th rowspan="2">দিন</th><th colspan="3" class="grp">ইংরেজি</th><th colspan="2" class="grp">কুরআন</th></tr><tr><th>Day</th><th>পড়েছে</th><th>পেরেছে</th><th>পড়েছে</th><th>পেরেছে</th></tr></thead><tbody>${rows}</tbody></table><div class="sub">ইংরেজির "পেরেছে" = Can I Do It? পয়েন্ট। "–" মানে সেদিনের তথ্য আসেনি।</div>`;
+    $('hint').textContent = `সারাংশ: ইংরেজি ${bn(engDays)}/৬ দিন পড়েছে, পয়েন্ট পেরেছে ${bn(pts)}/${bn(ptsTot)}। কুরআন ${bn(qDays)}/৬ দিন।`;
+  }
+  renderMarks();
+  $('listView').hidden = true; $('detailView').hidden = false;
+}
+function seg(el, max, key, disabled){
+  el.innerHTML = '';
+  for (let v = 0; v <= max; v++){
+    const b = document.createElement('button'); b.textContent = bn(v);
+    b.setAttribute('aria-pressed', draft[key] === v); b.disabled = disabled;
+    b.onclick = () => { draft[key] = v; renderMarks(); };
+    el.appendChild(b);
+  }
+}
+function renderMarks(){
+  const s = students.find(x => x.id === cur); if (!s) return;
+  const used = leavesUsed(s), limit = settings.leaveLimit, full = used >= limit;
+  $('att').querySelectorAll('button').forEach(b => {
+    b.setAttribute('aria-pressed', draft.att === b.dataset.v);
+    b.disabled = b.dataset.v === 'leave' && full && draft.att !== 'leave';
+    b.onclick = () => { draft.att = b.dataset.v; if (draft.att !== 'present') draft.pres = 0; renderMarks(); };
+  });
+  $('leaveInfo').textContent = full && draft.att !== 'leave'
+    ? `এ বছরের ${bn(limit)}টি ছুটি শেষ। এখন অনুপস্থিত হলে উপস্থাপনায় ০ ধরা হবে।`
+    : `এ বছর ছুটি নেওয়া হয়েছে: ${bn(used + (draft.att === 'leave' ? 1 : 0))}/${bn(limit)}`;
+  seg($('mRead'), 5, 'read', !hasData(s));
+  seg($('mPres'), 5, 'pres', draft.att !== 'present');
+  $('presNote').textContent = draft.att === 'leave' ? 'ছুটি — এ সপ্তাহ ৫-এর মধ্যে হিসাব' : draft.att === 'absent' ? 'অনুপস্থিত — ০' : '৫-এর মধ্যে';
+  $('tot').textContent = draft.read === undefined || !draft.att ? '–' : draft.att === 'leave' ? `${bn(draft.read)}/৫` : `${bn(draft.read + (draft.pres || 0))}/১০`;
+}
+$('save').onclick = () => {
+  const s = students.find(x => x.id === cur); if (!s) return;
+  if (!hasData(s)){ say($('msg'), 'তথ্য না আসা পর্যন্ত পড়ার নম্বর দেওয়া যাবে না। অভিভাবক তথ্য পাঠালে আবার আসুন।', true); return; }
+  if (!draft.att){ say($('msg'), 'আগে শুক্রবারের উপস্থিতি দিন।', true); return; }
+  if (draft.read === undefined || (draft.att === 'present' && draft.pres === undefined)){ say($('msg'), 'পড়া ও উপস্থাপনা দুটোর নম্বর দিন।', true); return; }
+  const ws = weekStart(), st = storyAt(s, friday);
+  const m = { studentId: s.id, weekStart: ws, friday: iso(friday), att: draft.att, read: draft.read, pres: draft.att === 'present' ? draft.pres : 0,
+              story: st || 0, teacherUid: me.uid, guardianPhone: s.guardianPhone, at: serverTimestamp() };
+  // saved on the device at once; Firebase sends it by itself when there is internet
+  setDoc(doc(db, 'marks', `${s.id}_${ws}`), m).catch(e => say($('msg'), 'সংরক্ষণ হয়নি: ' + (e.code || e.message), true));
+  marks[s.id] = m;
+  say($('msg'), navigator.onLine ? 'সংরক্ষিত। নম্বর অভিভাবকের অ্যাপে চলে যাচ্ছে।' : 'সংরক্ষিত (যন্ত্রে)। ইন্টারনেট চালু হলে নিজে থেকে পাঠানো হবে।');
+  renderMarks();
+};
+$('dNext').onclick = () => {
+  const i = students.findIndex(x => x.id === cur);
+  const rest = students.slice(i + 1).concat(students.slice(0, i + 1));
+  const nx = rest.find(x => !marks[x.id]) || rest[0];
+  if (nx) openStudent(nx.id);
+};
+
+// ---------- guardian PIN reset (same as the admin app) ----------
+async function makeLogin(email, password){
+  const tmp = initializeApp(firebaseConfig, 'creator-' + Date.now());
+  try { const c = await createUserWithEmailAndPassword(getAuth(tmp), email, password); return c.user.uid; }
+  finally { try { await signOut(getAuth(tmp)); } catch(e) {} deleteApp(tmp).catch(() => {}); }
+}
+async function ensureGuardian(phone, name, pin){
+  const l = await getDoc(doc(db, 'logins', phone));
+  if (l.exists()) return { existed: true, uid: l.data().uid };
+  const uid = await makeLogin(phone + DOMAIN, GUARDIAN_PW(pin));
+  await setDoc(doc(db, 'users', uid), { role: 'guardian', name, phone, createdBy: me.uid, createdAt: serverTimestamp() });
+  await setDoc(doc(db, 'logins', phone), { email: phone + DOMAIN, uid });
+  return { existed: false, uid };
+}
+async function resetGuardianPin(phone, name, pin){
+  const l = await getDoc(doc(db, 'logins', phone));
+  const email = `${phone}.${Date.now().toString(36)}${DOMAIN}`;
+  const uid = await makeLogin(email, GUARDIAN_PW(pin));
+  await setDoc(doc(db, 'users', uid), { role: 'guardian', name, phone, createdBy: me.uid, createdAt: serverTimestamp() });
+  await setDoc(doc(db, 'logins', phone), { email, uid });
+  if (l.exists() && l.data().uid) await deleteDoc(doc(db, 'users', l.data().uid)).catch(() => {});
+}
+$('pwGen').onclick = () => { $('pwIn').value = newPin(); };
+$('pwSave').onclick = async () => {
+  const s = students.find(x => x.id === cur), v = toEn($('pwIn').value);
+  if (!/^\d{5}$/.test(v)){ say($('pwMsg'), 'পাসওয়ার্ড ঠিক ৫ অংকের হতে হবে (যেমন 48261)।', true); return; }
+  if (!navigator.onLine){ say($('pwMsg'), 'পাসওয়ার্ড বদলাতে ইন্টারনেট চালু করুন।', true); return; }
+  $('pwSave').disabled = true; say($('pwMsg'), 'সংরক্ষণ হচ্ছে…');
+  try { await resetGuardianPin(s.guardianPhone, s.parentName, v); say($('pwMsg'), `সংরক্ষিত: ${v} — অভিভাবককে এখনই জানিয়ে দিন, পরে আর দেখা যাবে না।`); $('pwIn').value = ''; }
+  catch(e){ say($('pwMsg'), 'সংরক্ষণ হয়নি: ' + (e.code || e.message), true); }
+  $('pwSave').disabled = false;
+};
+
+// ---------- fee dues: after the 5th the teacher sends a reminder; it shows as a red box in the guardian's app ----------
+function families(){
+  const fam = {};
+  students.forEach(s => { (fam[s.guardianPhone] = fam[s.guardianPhone] || { phone: s.guardianPhone, parent: s.parentName, kids: [] }).kids.push(s.name); });
+  return Object.values(fam);
+}
+function dueFamilies(){ return families().filter(f => !(feeDocs[f.phone] && feeDocs[f.phone].status === 'paid')); }
+function sendNotice(f){
+  const m = ym(new Date());
+  setDoc(doc(db, 'notices', `${f.phone}_${m}`), { guardianPhone: f.phone, teacherUid: me.uid, month: m, amount: settings.fee, teacherName: profile.name || '', sentAt: serverTimestamp() })
+    .catch(e => say($('dueMsg'), 'পাঠানো যায়নি: ' + (e.code || e.message), true));
+  notices[f.phone] = { sent: true };
+}
+function renderDue(){
+  const d = new Date(), after = d.getDate() > DUE_DAY, due = dueFamilies();
+  $('dueH').textContent = `${months[d.getMonth()]}-এর ফি বকেয়া`;
+  $('dueNote').textContent = !after
+    ? `৫ তারিখ পর্যন্ত ফি দেওয়ার সময়। ৬ তারিখ থেকে বার্তা পাঠানো যাবে। (প্রতি পরিবার ৳${bn(settings.fee)})`
+    : `আজ ${bn(d.getDate())} তারিখ — ৫ তারিখের মধ্যে ফি দেননি এমন পরিবার। বার্তা পাঠালে অভিভাবকের অ্যাপের একদম উপরে লাল ঘরে বকেয়া দেখাবে।`;
+  const box = $('dueList'); box.innerHTML = '';
+  if (!due.length) box.innerHTML = `<div class="note">${families().length ? '✓ এ মাসে সবাই ফি দিয়েছেন।' : 'এখনো কোনো শিক্ষার্থী নেই।'}</div>`;
+  due.forEach(f => {
+    const el = document.createElement('div'); el.className = 'fam'; const sent = !!notices[f.phone];
+    el.innerHTML = `<div class="top"><span class="n">${esc(f.parent)}</span><span class="amt">বকেয়া ৳${bn(settings.fee)}</span></div><div class="sub">ফোন: ${bn(f.phone)} · সন্তান: ${esc(f.kids.join(', '))}</div>` +
+      (sent ? '<div class="sent">✓ বার্তা পাঠানো হয়েছে — অভিভাবক অ্যাপ খুললেই দেখবেন</div>' : after ? '<button class="btn small">বকেয়া বার্তা পাঠান</button>' : '');
+    const b = el.querySelector('button'); if (b) b.onclick = () => { sendNotice(f); renderDue(); };
+    box.appendChild(el);
+  });
+  $('dueAll').hidden = !after || due.every(f => notices[f.phone]);
+}
+$('dueAll').onclick = () => { dueFamilies().filter(f => !notices[f.phone]).forEach(sendNotice); renderDue(); };
+
+// ---------- admission (teacher can add, never delete) ----------
+$('aAge').innerHTML = [6,7,8,9,10,11,12,13,14,15,16,17].map(a => `<option value="${a}">${bn(a)} বছর</option>`).join('');
+$('aPw').value = newPin();
+$('aSave').onclick = async () => {
+  const name = $('aName').value.trim(), parent = $('aParent').value.trim(), phone = toEn($('aPhone').value);
+  const district = profile.district || '', thana = profile.thana || '';
+  const v = Math.max(1, Math.min(99, +$('aVil').value || 1)), u = Math.max(1, Math.min(99, +$('aUni').value || 1));
+  const age = +$('aAge').value, pin = toEn($('aPw').value), m = $('aMsg');
+  $('aDone').hidden = true;
+  if (!name || !parent || phone.length !== 11){ say(m, 'নাম, পিতা/মাতার নাম আর ১১ অংকের ফোন নম্বর দিন।', true); return; }
+  if (!district || !thana){ say(m, 'আপনার জেলা/থানা ঠিক করা নেই। এডমিনকে বলুন।', true); return; }
+  if (!/^\d{5}$/.test(pin)){ say(m, 'অভিভাবকের পাসওয়ার্ড ঠিক ৫ অংকের হতে হবে।', true); return; }
+  if (!navigator.onLine){ say(m, 'ভর্তির জন্য ইন্টারনেট চালু করুন।', true); return; }
+  $('aSave').disabled = true; say(m, 'ভর্তি হচ্ছে…');
+  try {
+    const kids = await getDocs(query(collection(db, 'students'), where('teacherUid', '==', me.uid), where('guardianPhone', '==', phone)));
+    if (kids.size >= MAX_CHILDREN) throw { mine: `এই অভিভাবকের ইতিমধ্যে ${bn(MAX_CHILDREN)} জন সন্তান ভর্তি আছে। এক অভিভাবকের সর্বোচ্চ ${bn(MAX_CHILDREN)} জন।` };
+    const g = await ensureGuardian(phone, parent, pin);
+    // the next free roll number for this village + union; a number is never given twice
+    const ckey = [district, thana, v, u].join('|');
+    const serial = await runTransaction(db, async tx => {
+      const ref = doc(db, 'counters', ckey); const c = await tx.get(ref);
+      const n = (c.exists() ? c.data().last : 0) + 1; tx.set(ref, { last: n }); return n;
+    });
+    const now = new Date();
+    const s = { name, parentName: parent, guardianPhone: phone, teacherUid: me.uid, district, thana, v, u, admitAge: age, admitYear: now.getFullYear(), admitMonth: now.getMonth() + 1, serial, createdBy: me.uid, createdAt: serverTimestamp() };
+    await setDoc(doc(collection(db, 'students')), s);
+    say(m, '');
+    $('aDone').innerHTML = `<div><b>${esc(name)}</b> ভর্তি হয়েছে।</div><div>রোল: <b class="big">${roll(s)}</b></div>` +
+      (g.existed ? '<div>অভিভাবক আগে থেকেই Lupce-এ আছেন, তাঁর আগের পাসওয়ার্ডই থাকল।</div>'
+                 : `<div>অভিভাবকের লগইন — ফোন: <b>${phone}</b> · পাসওয়ার্ড: <b class="big">${pin}</b></div><div class="note">পাসওয়ার্ড এখনই অভিভাবককে জানিয়ে দিন, পরে আর দেখা যাবে না।</div>`);
+    $('aDone').hidden = false;
+    $('aName').value = $('aParent').value = $('aPhone').value = ''; $('aPw').value = newPin();
+  } catch(e){
+    say(m, e.mine || (e.code === 'auth/email-already-in-use' ? 'এই ফোন নম্বরে আগে থেকে একটা লগইন আছে। এডমিনকে বলুন।' : 'ভর্তি হয়নি: ' + (e.code || e.message)), true);
+  }
+  $('aSave').disabled = false;
+};
+
+// ---------- pages: main menu -> inner page -> one student; every level has back buttons, and the phone's back button works ----------
+const pages = { stu: ['students', 'শিক্ষার্থী ও নম্বর'], due: ['dues', 'মাসিক ফি বকেয়া'], add: ['admit', 'নতুন শিক্ষার্থী ভর্তি'], one: ['student', ''] };
+let depth = 0, popping = false;
+function show(t){
+  if (t === 'one' && !cur) t = 'stu';
+  if (t === 'one'){ openStudent(cur); return; }
+  $('detailView').hidden = true; $('listView').hidden = false;
+  $('menu').hidden = $('heroMain').hidden = !!t;
+  $('backTop').hidden = $('backBot').hidden = $('pageT').hidden = !t; $('logout').hidden = !!t;
+  if (t) $('pageT').textContent = pages[t][1];
+  document.querySelectorAll('#listView [data-p]').forEach(p => p.hidden = p.dataset.p !== t);
+  if (t === 'stu') renderList(); if (t === 'due') renderDue();
+  scrollTo(0, 0);
+}
+function route(){ const h = location.hash.slice(1); show(Object.keys(pages).find(k => pages[k][0] === h) || null); }
+function go(t){ try { history.pushState(null, '', '#' + pages[t][0]); depth++; } catch(e) {} if (t !== 'one') show(t); }
+function back(fallback){
+  if (depth > 0){ depth--; popping = true; try { history.back(); return; } catch(e) { popping = false; } }
+  try { history.replaceState(null, '', location.pathname + (fallback ? '#' + pages[fallback][0] : '')); } catch(e) {}
+  show(fallback);
+}
+$('menu').querySelectorAll('button').forEach(b => b.onclick = () => go(b.dataset.t));
+$('backTop').onclick = $('backBot').onclick = () => back(null);
+$('dBack').onclick = $('dBack2').onclick = () => back('stu');
+addEventListener('popstate', () => { if (!popping) depth = Math.max(0, depth - 1); popping = false; route(); });
+
+// ---------- works offline: keep the app itself on the device ----------
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+renderNet();
+</script>
+</body>
+</html>

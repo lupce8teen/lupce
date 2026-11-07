@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lupce-Admin</title>
+<meta name="theme-color" content="#1f7a5a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width column; main page = menu of big boxes; every inner page has back buttons top and bottom */
+:root{
+  --bg:#eef3ef; --surface:#ffffff; --ink:#17302a; --muted:#5b6f68; --line:#d5e0da;
+  --leaf:#1f7a5a; --leaf-soft:#dcefe6; --mango:#f2a516; --mango-soft:#fdf0d3;
+  --good:#1f7a5a; --bad:#b3372b; --bad-soft:#f8e1de; --fill:#1f7a5a; --on-fill:#ffffff; --paper:#fffdf7;
+  --display:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
+  --body:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1a17; --surface:#16241f; --ink:#e4efe9; --muted:#a9bcb4; --line:#2a3b35;
+  --leaf:#4fc193; --leaf-soft:#1b3a2f; --mango:#f5b83d; --mango-soft:#3a2f17;
+  --good:#4fc193; --bad:#ff9384; --bad-soft:#5a2620; --fill:#146b4c; --on-fill:#ffffff; --paper:#1b2a25; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a17; --surface:#16241f; --ink:#e4efe9; --muted:#a9bcb4; --line:#2a3b35;
+  --leaf:#4fc193; --leaf-soft:#1b3a2f; --mango:#f5b83d; --mango-soft:#3a2f17;
+  --good:#4fc193; --bad:#ff9384; --bad-soft:#5a2620; --fill:#146b4c; --on-fill:#ffffff; --paper:#1b2a25; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+.app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.app .app{width:100%;max-width:none}
+.brand{font-family:var(--display);font-weight:700;font-size:24px;color:var(--leaf);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:16px;color:var(--muted);margin-top:-4px}
+.net{font-size:15px;font-weight:600;border-radius:12px;padding:6px 12px;background:var(--leaf-soft);color:var(--ink)}
+.net.off{background:var(--mango-soft)}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.menu button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.menu button b{font-family:var(--display);font-size:20px;color:var(--leaf);line-height:1.25}
+.menu button span{font-size:15px;color:var(--muted);line-height:1.4}
+.menu button:last-child:nth-child(odd){grid-column:1/-1}
+.back{font:inherit;font-size:17px;font-weight:600;align-self:flex-start;background:var(--surface);color:var(--ink);border:2px solid var(--leaf);border-radius:12px;padding:6px 14px;cursor:pointer}
+.back.wide{align-self:stretch;padding:10px}
+.pageT{font-family:var(--display);font-size:22px;font-weight:700;margin:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.card h2{margin:0;font-family:var(--display);font-size:20px;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label.f{display:flex;flex-direction:column;gap:2px;font-size:16px;font-weight:600;min-width:0}
+input,select{font:inherit;font-size:17px;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 10px}
+.btn{font:inherit;font-weight:600;font-size:17px;border:0;border-radius:14px;padding:11px;background:var(--fill);color:var(--on-fill);cursor:pointer}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn.small{font-size:15px;padding:5px 12px;border-radius:10px}
+.btn.ghost{background:var(--surface);color:var(--ink);border:2px solid var(--leaf)}
+.btn.danger{background:#b3372b;color:#ffffff;font-weight:700;border:1px solid #8f2a20}
+.msg{font-size:16px;text-align:center;min-height:1.4em;color:var(--good)}
+.msg.err{color:var(--bad)}
+.note{font-size:16px;color:var(--muted)}
+.item{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.item:first-child{border-top:0;padding-top:0}
+.item .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.item .n{font-weight:700}
+.item .r{font-size:16px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.item .acts select{width:auto;flex:1;min-width:0;font-size:16px;padding:5px 8px}
+.ask{background:var(--bad-soft);border-radius:10px;padding:8px 10px;font-size:16px;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-size:15px;font-weight:700;background:var(--leaf-soft);color:var(--leaf);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.pill.due{background:#b3372b;color:#ffffff}
+.rollbox{background:var(--leaf-soft);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.rollbox b{font-size:22px;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+.done{background:var(--leaf-soft);border-radius:12px;padding:12px;font-size:17px;display:flex;flex-direction:column;gap:4px}
+.done b.big{font-size:24px;letter-spacing:3px;font-variant-numeric:tabular-nums}
+.pwbox{background:var(--bg);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.pwrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pwrow input{width:9em;font-size:20px;letter-spacing:4px;text-align:center;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+@media (max-width:440px){.stats{grid-template-columns:1fr 1fr}}
+.stats button{font:inherit;background:var(--bg);color:var(--ink);border:2px solid transparent;border-radius:12px;padding:8px 4px;cursor:pointer;min-width:0}
+.stats button[aria-pressed="true"]{border-color:var(--leaf);background:var(--leaf-soft)}
+.stats b{display:block;font-family:var(--display);font-size:22px;color:var(--leaf);font-variant-numeric:tabular-nums}
+.stats button.dueT b{color:#c2473a}
+.stats span{font-size:15px;color:var(--muted)}
+.listT{font-weight:700;font-size:17px}
+.login .lt{font-family:var(--display);font-size:24px;font-weight:700;color:var(--leaf);line-height:1.2}
+#lgPw{font-size:20px;letter-spacing:2px}
+/* certificate */
+.cert{position:relative;overflow:hidden;background:var(--paper);border:3px double var(--leaf);border-radius:6px;padding:18px 16px;display:flex;flex-direction:column;gap:10px}
+.cert>*{position:relative;z-index:1}
+.cert::before{content:"Lupce8Teen";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-55deg);font-family:var(--display);font-weight:700;font-size:clamp(60px,20vw,112px);color:var(--leaf);opacity:.08;white-space:nowrap;pointer-events:none;z-index:0;letter-spacing:2px}
+.cert .head{text-align:center}
+.cert .head .l{font-family:var(--display);font-size:26px;font-weight:700;color:var(--leaf);line-height:1.2}
+.cert .head .t{font-size:18px;font-weight:700}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0;font-size:16px}
+.cert dt{color:var(--muted)} .cert dd{margin:0;font-weight:600}
+.tbl{overflow-x:auto;overflow-y:hidden}
+table{width:100%;border-collapse:collapse;font-size:16px;font-variant-numeric:tabular-nums}
+th,td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--muted);font-weight:600}
+tfoot td{font-weight:700;border-top:2px solid var(--leaf)}
+.grade{text-align:center;font-family:var(--display);font-size:24px;font-weight:700;color:var(--leaf)}
+.sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;font-size:15px;text-align:center}
+.sign div{border-top:1px solid var(--ink);padding-top:4px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--mango);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- login -->
+  <section class="card login" id="loginView">
+    <div class="lt">Lupce8Teen<br>এডমিনের লগইন</div>
+    <label class="f" for="lgPhone">ফোন নম্বর<input id="lgPhone" inputmode="tel" autocomplete="username" placeholder="01XXXXXXXXX"></label>
+    <label class="f" for="lgPw">পাসওয়ার্ড<input type="password" id="lgPw" autocomplete="current-password"></label>
+    <button class="btn" id="lgGo">ঢুকুন</button>
+    <div class="msg" id="lgMsg" role="status"></div>
+    <div class="note">প্রথমবার ঢুকতে ইন্টারনেট লাগবে। এরপর ইন্টারনেট ছাড়াও অ্যাপ খুলবে।</div>
+  </section>
+
+  <div id="appView" class="app" hidden>
+    <div class="brand"><div>Lupce8Teen<small id="who">এডমিনের অ্যাপ</small></div><span class="net" id="net"></span></div>
+
+    <nav class="menu" id="menu" aria-label="মূল পাতা">
+      <button data-t="stu"><b>শিক্ষার্থী</b><span>খোঁজা, শিক্ষক বদল, পাসওয়ার্ড, মোছা</span></button>
+      <button data-t="add"><b>নতুন ভর্তি</b><span>রোল নিজে থেকে আসবে</span></button>
+      <button data-t="tea"><b>শিক্ষক</b><span>তালিকা ও নতুন শিক্ষক</span></button>
+      <button data-t="adm"><b>এডমিন</b><span>অন্যকে দায়িত্ব দেওয়া</span></button>
+      <button data-t="set"><b>সেটিং</b><span>ছুটির সীমা ও বড় ছুটি</span></button>
+      <button data-t="cer"><b>সনদ</b><span>বার্ষিক ফলাফল, PDF</span></button>
+      <button data-t="fee"><b>মাসিক ফি</b><span>ফির পরিমাণ, কে দিয়েছে কে বাকি</span></button>
+    </nav>
+    <button class="back" id="backTop" hidden>‹ মূল পাতায় ফিরুন</button>
+    <h1 class="pageT" id="pageT" hidden></h1>
+
+    <!-- area picker shared by student, fee and certificate pages -->
+    <section class="card" id="areaCard" hidden>
+      <div class="grid2">
+        <label class="f" for="fDist">জেলা<input id="fDist" list="distList" placeholder="যেমন: চাঁদপুর"></label>
+        <label class="f" for="fThana">থানা<input id="fThana" list="thanaList" placeholder="যেমন: হাইমচর"></label>
+      </div>
+      <button class="btn ghost" id="fLoad">এই এলাকার শিক্ষার্থী দেখুন</button>
+      <div class="note" id="areaNote"></div>
+    </section>
+    <datalist id="distList"></datalist><datalist id="thanaList"></datalist>
+
+    <!-- students -->
+    <section class="card" data-p="stu" hidden>
+      <label class="f" for="fSearch">রোল বা নাম দিয়ে খুঁজুন<input id="fSearch" placeholder="যেমন: V01-U01-07 বা সাদিয়া"></label>
+      <div class="note" id="stuCount"></div>
+      <div id="stuList"></div>
+    </section>
+
+    <!-- admission -->
+    <section class="card" data-p="add" hidden>
+      <h2>নতুন শিক্ষার্থী ভর্তি</h2>
+      <label class="f" for="aName">শিক্ষার্থীর নাম<input id="aName"></label>
+      <label class="f" for="aParent">পিতা/মাতার নাম<input id="aParent"></label>
+      <label class="f" for="aPhone">অভিভাবকের ফোন নম্বর (লগইনের আইডি)<input id="aPhone" inputmode="tel" placeholder="01XXXXXXXXX"></label>
+      <div class="grid2">
+        <label class="f" for="aDist">জেলা<input id="aDist" list="distList"></label>
+        <label class="f" for="aThana">থানা<input id="aThana" list="thanaList"></label>
+      </div>
+      <div class="grid2">
+        <label class="f" for="aVil">গ্রাম নম্বর<input id="aVil" type="number" min="1" max="99" value="1"></label>
+        <label class="f" for="aUni">ইউনিয়ন নম্বর<input id="aUni" type="number" min="1" max="99" value="1"></label>
+      </div>
+      <div class="grid2">
+        <label class="f" for="aAge">বয়স<select id="aAge"></select></label>
+        <label class="f" for="aTea">শিক্ষক<select id="aTea"></select></label>
+      </div>
+      <label class="f" for="aPw">অভিভাবকের ৫ অংকের পাসওয়ার্ড (নিজে থেকে বানানো, চাইলে বদলান)<input id="aPw" inputmode="numeric" maxlength="5"></label>
+      <div class="note">অভিভাবক আগে থেকে Lupce-এ থাকলে তাঁর আগের পাসওয়ার্ডই থাকবে।</div>
+      <button class="btn" id="aSave">ভর্তি করুন</button>
+      <div class="msg" id="aMsg" role="status"></div>
+      <div class="done" id="aDone" hidden></div>
+      <div class="note">ভর্তির জন্য ইন্টারনেট লাগবে, কারণ রোল নম্বর আর অভিভাবকের লগইন সার্ভারে তৈরি হয়।</div>
+    </section>
+
+    <!-- teachers -->
+    <section class="card" data-p="tea" hidden>
+      <h2>শিক্ষক</h2>
+      <div id="teaList"></div>
+    </section>
+    <section class="card" data-p="tea" hidden>
+      <h2>নতুন শিক্ষক যোগ করুন</h2>
+      <div class="grid2">
+        <label class="f" for="tName">নাম<input id="tName"></label>
+        <label class="f" for="tPhone">ফোন নম্বর<input id="tPhone" inputmode="tel"></label>
+      </div>
+      <div class="grid2">
+        <label class="f" for="tDist">জেলা<input id="tDist" list="distList"></label>
+        <label class="f" for="tThana">থানা<input id="tThana" list="thanaList"></label>
+      </div>
+      <label class="f" for="tPw">শিক্ষকের পাসওয়ার্ড (অন্তত ৬ অক্ষর)<input id="tPw"></label>
+      <button class="btn" id="tSave">শিক্ষক যোগ করুন</button>
+      <div class="msg" id="tMsg" role="status"></div>
+    </section>
+
+    <!-- admins -->
+    <section class="card" data-p="adm" hidden>
+      <h2>এডমিন</h2>
+      <div id="admList"></div>
+    </section>
+    <section class="card" data-p="adm" hidden>
+      <h2>অন্য কাউকে এডমিনের দায়িত্ব দিন</h2>
+      <div class="grid2">
+        <label class="f" for="dName">নাম<input id="dName"></label>
+        <label class="f" for="dPhone">ফোন নম্বর<input id="dPhone" inputmode="tel"></label>
+      </div>
+      <label class="f" for="dScope">কোন এলাকা দেখবেন<select id="dScope">
+        <option value="all">সব এলাকা (পূর্ণ এডমিন)</option>
+        <option value="district">শুধু একটা জেলা</option>
+        <option value="thana">শুধু একটা থানা</option>
+      </select></label>
+      <div class="grid2" id="dAreaRow" hidden>
+        <label class="f" for="dDist">জেলা<input id="dDist" list="distList"></label>
+        <label class="f" for="dThana">থানা<input id="dThana" list="thanaList"></label>
+      </div>
+      <label class="f" for="dPw">পাসওয়ার্ড (অন্তত ৬ অক্ষর)<input id="dPw"></label>
+      <button class="btn" id="dSave">এডমিন যোগ করুন</button>
+      <div class="msg" id="dMsg" role="status"></div>
+    </section>
+
+    <!-- settings -->
+    <section class="card" data-p="set" hidden>
+      <h2>ছুটির সীমা</h2>
+      <label class="f" for="sLimit">বছরে সর্বোচ্চ কতটি শুক্রবার ছুটি দেওয়া যাবে<input id="sLimit" type="number" min="0" max="52"></label>
+      <button class="btn" id="sLimitSave">সংরক্ষণ করুন</button>
+      <div class="msg" id="sMsg" role="status"></div>
+    </section>
+    <section class="card" data-p="set" hidden>
+      <h2>বড় ছুটির দিন</h2>
+      <div class="note">এই দিনগুলোতে অভিভাবক বা শিক্ষকের কাছে কিছু চাওয়া হবে না।</div>
+      <div id="holList"></div>
+      <div class="grid2">
+        <label class="f" for="hName">ছুটির নাম<input id="hName" placeholder="যেমন: ঈদুল আযহা"></label>
+        <label class="f" for="hDate">তারিখ<input id="hDate" type="date"></label>
+      </div>
+      <button class="btn" id="hSave">ছুটি যোগ করুন</button>
+    </section>
+
+    <!-- monthly fee -->
+    <section class="card" data-p="fee" hidden>
+      <h2>মাসিক ফি (প্রতি পরিবার)</h2>
+      <div class="note">এক অভিভাবকের ১ থেকে ৫ জন সন্তান ভর্তি থাকলেও ফি একটাই।</div>
+      <label class="f" for="feeAmt">প্রতি মাসের ফি (টাকা)<input id="feeAmt" type="number" min="0" step="10"></label>
+      <label class="f" for="feePay">ফি পাঠানোর বিকাশ/নগদ নম্বর (অভিভাবকের অ্যাপে দেখাবে, না থাকলে খালি রাখুন)<input id="feePay" inputmode="tel" placeholder="01XXXXXXXXX"></label>
+      <button class="btn" id="feeSave">ফি সংরক্ষণ করুন</button>
+      <div class="msg" id="feeMsg" role="status"></div>
+    </section>
+    <section class="card" data-p="fee" hidden>
+      <h2 id="feeMonthH"></h2>
+      <div class="stats" id="feeStats"></div>
+      <div id="feeList"></div>
+    </section>
+
+    <!-- certificate -->
+    <section class="card" data-p="cer" hidden>
+      <div class="grid2">
+        <label class="f" for="cStu">শিক্ষার্থী<select id="cStu"></select></label>
+        <label class="f" for="cYear">বছর<select id="cYear"></select></label>
+      </div>
+      <div class="cert" id="cert"></div>
+      <div class="grid2">
+        <button class="btn" id="pdfBtn">⬇ PDF ডাউনলোড</button>
+        <button class="btn ghost" id="printBtn">🖨 প্রিন্ট</button>
+      </div>
+      <div class="msg" id="pdfMsg" role="status"></div>
+    </section>
+
+    <button class="back wide" id="backBot" hidden>‹ মূল পাতায় ফিরুন</button>
+    <button class="back wide" id="logout">লগআউট</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, deleteApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, runTransaction, serverTimestamp, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxHk_qTbHqmm2LfVkgUlt96ny8cOkjkLc",
+  authDomain: "lupce8teen-fa311.firebaseapp.com",
+  projectId: "lupce8teen-fa311",
+  storageBucket: "lupce8teen-fa311.firebasestorage.app",
+  messagingSenderId: "341115169278",
+  appId: "1:341115169278:web:8028658e273f72295f38af"
+};
+const MAIN_ADMIN = 'QTDI5rkbDegxvNbqyNRoDdFTLt33';
+const DOMAIN = '@lupce8teen.app';
+const GUARDIAN_PW = pin => 'L8T-' + pin;          // a 5-digit PIN is stretched to Firebase's 6-character minimum
+const MAX_CHILDREN = 5;
+
+// each Lupce app keeps its own log-in, so the admin and teacher apps can stay open on the same computer
+const app = initializeApp(firebaseConfig, 'lupce-admin');
+const auth = getAuth(app);
+// offline-first: everything is kept on the device and sent/received by itself whenever there is internet
+const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+
+const $ = id => document.getElementById(id);
+const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const toEn = s => String(s || '').replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)).replace(/\D/g, '');
+const p2 = n => String(n).padStart(2, '0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const say = (el, text, err) => { el.textContent = text; el.classList.toggle('err', !!err); };
+const newPin = () => String(Math.floor(10000 + Math.random() * 90000));
+const nowYear = () => new Date().getFullYear();
+// age in the roll goes up by one every 1 January
+const ageOf = s => s.admitAge + (nowYear() - s.admitYear);
+const roll = s => `V${p2(s.v)}-U${p2(s.u)}-${p2(ageOf(s))}-${String(s.serial).padStart(3, '0')}`;
+const months = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const ym = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}`;
+
+let me = null, profile = null;
+let settings = { fee: 500, leaveLimit: 6, holidays: [], areas: [] };
+let teachers = [], admins = [], students = [], feeDocs = {};
+let area = { district: '', thana: '' };
+let unsub = { stu: null, fee: null };
+
+// ---------- connection badge: online / offline / waiting to send ----------
+let pendingWrites = false;
+function renderNet(){
+  const on = navigator.onLine;
+  $('net').className = 'net' + (on ? '' : ' off');
+  $('net').textContent = !on ? '● ইন্টারনেট নেই — তথ্য যন্ত্রে জমা' : pendingWrites ? '↻ তথ্য পাঠানো হচ্ছে…' : '✓ সব তথ্য সার্ভারে';
+}
+addEventListener('online', renderNet); addEventListener('offline', renderNet);
+
+// ---------- login ----------
+$('lgGo').onclick = async () => {
+  const ph = toEn($('lgPhone').value), pw = $('lgPw').value;
+  if (ph.length < 11 || !pw){ say($('lgMsg'), 'ফোন নম্বর আর পাসওয়ার্ড দিন।', true); return; }
+  $('lgGo').disabled = true; say($('lgMsg'), 'ঢোকা হচ্ছে…');
+  try { await signInWithEmailAndPassword(auth, ph + DOMAIN, pw); }
+  catch(e){
+    say($('lgMsg'), !navigator.onLine ? 'প্রথমবার ঢুকতে ইন্টারনেট লাগবে।' : 'ফোন নম্বর বা পাসওয়ার্ড মিলছে না।', true);
+  }
+  $('lgGo').disabled = false;
+};
+$('lgPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgGo').click(); });
+$('logout').onclick = () => signOut(auth);
+
+let lastUid = null;
+onAuthStateChanged(auth, async user => {
+  // Firebase can report the same log-in again (e.g. after refreshing it); keep the page where it is
+  if (user && lastUid === user.uid && me) return;
+  lastUid = user ? user.uid : null;
+  Object.values(unsub).forEach(f => f && f()); unsub = { stu: null, fee: null };
+  if (!user){ me = profile = null; $('loginView').hidden = false; $('appView').hidden = true; return; }
+  me = user;
+  let snap = null;
+  try { snap = await getDoc(doc(db, 'users', user.uid)); } catch(e) {}
+  profile = snap && snap.exists() ? snap.data() : null;
+  if (user.uid === MAIN_ADMIN && !profile){
+    profile = { role: 'admin', main: true, name: 'প্রধান এডমিন', phone: user.email.replace(DOMAIN, ''), scope: { type: 'all' } };
+    setDoc(doc(db, 'users', user.uid), profile).catch(() => {});
+  }
+  if (!(user.uid === MAIN_ADMIN || (profile && profile.role === 'admin'))){
+    say($('lgMsg'), 'এই অ্যাপ শুধু এডমিনের জন্য।', true); signOut(auth); return;
+  }
+  $('loginView').hidden = true; $('appView').hidden = false;
+  $('who').textContent = 'এডমিনের অ্যাপ · ' + (profile.name || '') + (user.uid === MAIN_ADMIN ? ' (প্রধান)' : '');
+  const sc = profile.scope || { type: 'all' };
+  if (sc.type !== 'all'){ $('fDist').value = sc.district || ''; $('fDist').readOnly = true; if (sc.type === 'thana'){ $('fThana').value = sc.thana || ''; $('fThana').readOnly = true; } }
+  startListeners(); renderNet(); fromHash();
+});
+
+// ---------- shared data that stays in sync by itself ----------
+function startListeners(){
+  onSnapshot(doc(db, 'settings', 'app'), { includeMetadataChanges: true }, s => {
+    if (s.exists()) settings = Object.assign({ fee: 500, leaveLimit: 6, holidays: [], areas: [] }, s.data());
+    pendingWrites = s.metadata.hasPendingWrites; renderNet();
+    $('distList').innerHTML = [...new Set(settings.areas.map(a => a.district))].map(d => `<option value="${esc(d)}">`).join('');
+    $('thanaList').innerHTML = settings.areas.map(a => `<option value="${esc(a.thana)}">`).join('');
+    if (!area.district && settings.areas.length && !$('fDist').value){ $('fDist').value = settings.areas[0].district; $('fThana').value = settings.areas[0].thana; }
+    renderSettings(); renderFee();
+  });
+  onSnapshot(query(collection(db, 'users'), where('role', '==', 'teacher')), s => {
+    teachers = s.docs.map(d => Object.assign({ uid: d.id }, d.data())); renderTeachers(); renderAddForm(); renderStudents();
+  });
+  onSnapshot(query(collection(db, 'users'), where('role', '==', 'admin')), s => {
+    admins = s.docs.map(d => Object.assign({ uid: d.id }, d.data())); renderAdmins();
+  });
+}
+function loadArea(){
+  const d = $('fDist').value.trim(), t = $('fThana').value.trim();
+  if (!d || !t){ $('areaNote').textContent = 'জেলা আর থানা দুটোই লিখুন।'; return; }
+  area = { district: d, thana: t };
+  if (unsub.stu) unsub.stu();
+  $('areaNote').textContent = 'তথ্য আসছে…';
+  unsub.stu = onSnapshot(query(collection(db, 'students'), where('district', '==', d), where('thana', '==', t)), { includeMetadataChanges: true }, s => {
+    students = s.docs.map(x => Object.assign({ id: x.id }, x.data())).sort((a, b) => (a.v - b.v) || (a.u - b.u) || (a.serial - b.serial));
+    pendingWrites = s.metadata.hasPendingWrites; renderNet();
+    $('areaNote').textContent = `${d} › ${t} · ${bn(students.length)} জন শিক্ষার্থী` + (s.metadata.fromCache && !navigator.onLine ? ' (যন্ত্রে জমা তথ্য)' : '');
+    renderStudents(); renderFee(); renderCertPick();
+  }, e => { $('areaNote').textContent = 'তথ্য আনা যায়নি: ' + e.code; });
+  watchFees();
+}
+$('fLoad').onclick = loadArea;
+
+// ---------- pages ----------
+const pages = { stu:['students','শিক্ষার্থী'], add:['admit','নতুন ভর্তি'], tea:['teachers','শিক্ষক'], adm:['admins','এডমিন'], set:['prefs','সেটিং'], cer:['certificate','সনদ'], fee:['fees','মাসিক ফি'] };
+const needsArea = { stu:1, fee:1, cer:1 };
+let pushed = false;
+function show(t){
+  $('menu').hidden = !!t; $('backTop').hidden = $('backBot').hidden = $('pageT').hidden = !t;
+  $('areaCard').hidden = !needsArea[t]; $('logout').hidden = !!t;
+  if (t) $('pageT').textContent = pages[t][1];
+  document.querySelectorAll('[data-p]').forEach(p => p.hidden = p.dataset.p !== t);
+  if (needsArea[t] && !area.district && $('fDist').value && $('fThana').value) loadArea();
+  if (t === 'add'){ renderAddForm(); }
+  if (t === 'cer') renderCertPick();
+  scrollTo(0, 0);
+}
+function fromHash(){ const h = location.hash.slice(1); show(Object.keys(pages).find(k => pages[k][0] === h) || null); }
+$('menu').querySelectorAll('button').forEach(b => b.onclick = () => { try { history.pushState(null, '', '#' + pages[b.dataset.t][0]); pushed = true; } catch(e) {} show(b.dataset.t); });
+const goHome = () => { if (pushed){ pushed = false; try { history.back(); return; } catch(e) {} } try { history.replaceState(null, '', location.pathname); } catch(e) {} show(null); };
+$('backTop').onclick = $('backBot').onclick = goHome;
+addEventListener('popstate', fromHash);
+
+// ---------- students ----------
+let asking = null, pwOpen = null, pwNote = {};
+function teacherName(uid){ const t = teachers.find(x => x.uid === uid); return t ? t.name : '—'; }
+function renderStudents(){
+  const q = $('fSearch').value.trim().toLowerCase();
+  const rows = students.filter(s => !q || roll(s).toLowerCase().includes(q) || (s.name || '').includes(q));
+  $('stuCount').textContent = area.district ? `দেখানো হচ্ছে ${bn(rows.length)} জন` : 'উপরে জেলা আর থানা দিয়ে "এই এলাকার শিক্ষার্থী দেখুন" চাপুন।';
+  const box = $('stuList'); box.innerHTML = '';
+  rows.forEach(s => {
+    const d = document.createElement('div'); d.className = 'item';
+    d.innerHTML = `<div class="top"><span class="n">${esc(s.name)}</span><span class="r">${roll(s)}</span></div>
+      <div class="r">অভিভাবক: ${esc(s.parentName)} · ${bn(s.guardianPhone)} · বয়স ${bn(ageOf(s))}</div>
+      <div class="acts"><select aria-label="শিক্ষক বদলান">${teachers.map(t => `<option value="${t.uid}" ${t.uid === s.teacherUid ? 'selected' : ''}>শিক্ষক: ${esc(t.name)}</option>`).join('') || '<option>কোনো শিক্ষক নেই</option>'}</select>
+      <button class="btn small ghost pwb">পাসওয়ার্ড</button><button class="btn small danger del">মুছুন</button></div>`;
+    d.querySelector('select').onchange = e => updateDoc(doc(db, 'students', s.id), { teacherUid: e.target.value });
+    d.querySelector('.del').onclick = () => { asking = asking === s.id ? null : s.id; renderStudents(); };
+    d.querySelector('.pwb').onclick = () => { pwOpen = pwOpen === s.id ? null : s.id; delete pwNote[s.id]; renderStudents(); };
+    if (asking === s.id){
+      const a = document.createElement('div'); a.className = 'ask';
+      a.innerHTML = `<span>${esc(s.name)}-কে মুছবেন? রোল ${roll(s)} আর কাউকে দেওয়া হবে না।</span><button class="btn small danger">হ্যাঁ, মুছুন</button><button class="btn small ghost">না</button>`;
+      a.querySelector('.danger').onclick = () => { deleteDoc(doc(db, 'students', s.id)); asking = null; };
+      a.querySelector('.ghost').onclick = () => { asking = null; renderStudents(); };
+      d.appendChild(a);
+    }
+    if (pwOpen === s.id){
+      const b = document.createElement('div'); b.className = 'pwbox';
+      b.innerHTML = `<div>অভিভাবকের নতুন ৫ অংকের পাসওয়ার্ড (ফোন ${bn(s.guardianPhone)}-এর সব সন্তানের জন্য একটাই)</div>
+        <div class="pwrow"><input inputmode="numeric" maxlength="5" aria-label="৫ অংকের পাসওয়ার্ড"><button class="btn small ghost gen">নিজে থেকে বানান</button><button class="btn small ok">সংরক্ষণ</button></div><div class="note pm">আগের পাসওয়ার্ড কেউ দেখতে পারে না; ভুলে গেলে এখানে নতুন দিন। ইন্টারনেট লাগবে।</div>`;
+      if (pwNote[s.id]){ const pm0 = b.querySelector('.pm'); pm0.style.color = pwNote[s.id][1]; pm0.textContent = pwNote[s.id][0]; }
+      const inp = b.querySelector('input'), pm = b.querySelector('.pm');
+      b.querySelector('.gen').onclick = () => { inp.value = newPin(); };
+      b.querySelector('.ok').onclick = async () => {
+        const v = toEn(inp.value);
+        if (!/^\d{5}$/.test(v)){ pm.style.color = 'var(--bad)'; pm.textContent = 'পাসওয়ার্ড ঠিক ৫ অংকের হতে হবে।'; return; }
+        pm.style.color = ''; pm.textContent = 'সংরক্ষণ হচ্ছে…';
+        try { await resetGuardianPin(s.guardianPhone, s.parentName, v); pwNote[s.id] = [`সংরক্ষিত: ${v} — অভিভাবককে এখনই জানিয়ে দিন, পরে আর দেখা যাবে না।`, 'var(--good)']; }
+        catch(e){ pwNote[s.id] = [navigator.onLine ? 'সংরক্ষণ হয়নি: ' + (e.code || e.message) : 'ইন্টারনেট চালু করে আবার চেষ্টা করুন।', 'var(--bad)']; }
+        renderStudents();
+      };
+      d.appendChild(b);
+    }
+    box.appendChild(d);
+  });
+}
+$('fSearch').oninput = renderStudents;
+
+// ---------- creating log-ins without logging the admin out ----------
+async function makeLogin(email, password){
+  const tmp = initializeApp(firebaseConfig, 'creator-' + Date.now());
+  try { const c = await createUserWithEmailAndPassword(getAuth(tmp), email, password); return c.user.uid; }
+  finally { try { await signOut(getAuth(tmp)); } catch(e) {} deleteApp(tmp).catch(() => {}); }
+}
+// guardian log-in: phone -> current e-mail id kept in logins/{phone}; a new PIN means a fresh log-in and the old one stops working
+async function ensureGuardian(phone, name, pin){
+  const l = await getDoc(doc(db, 'logins', phone));
+  if (l.exists()) return { existed: true, uid: l.data().uid };
+  const uid = await makeLogin(phone + DOMAIN, GUARDIAN_PW(pin));
+  await setDoc(doc(db, 'users', uid), { role: 'guardian', name, phone, createdBy: me.uid, createdAt: serverTimestamp() });
+  await setDoc(doc(db, 'logins', phone), { email: phone + DOMAIN, uid });
+  return { existed: false, uid };
+}
+async function resetGuardianPin(phone, name, pin){
+  const l = await getDoc(doc(db, 'logins', phone));
+  const email = `${phone}.${Date.now().toString(36)}${DOMAIN}`;
+  const uid = await makeLogin(email, GUARDIAN_PW(pin));
+  await setDoc(doc(db, 'users', uid), { role: 'guardian', name, phone, createdBy: me.uid, createdAt: serverTimestamp() });
+  await setDoc(doc(db, 'logins', phone), { email, uid });
+  if (l.exists() && l.data().uid) await deleteDoc(doc(db, 'users', l.data().uid)).catch(() => {});
+}
+
+// ---------- admission ----------
+function renderAddForm(){
+  const keep = $('aAge').value || '6';
+  $('aAge').innerHTML = [6,7,8,9,10,11,12,13,14,15,16,17].map(a => `<option value="${a}" ${String(a) === keep ? 'selected' : ''}>${bn(a)} বছর</option>`).join('');
+  const kt = $('aTea').value;
+  $('aTea').innerHTML = teachers.map(t => `<option value="${t.uid}" ${t.uid === kt ? 'selected' : ''}>${esc(t.name)}</option>`).join('') || '<option value="">আগে শিক্ষক যোগ করুন</option>';
+  if (!$('aPw').value) $('aPw').value = newPin();
+  if (!$('aDist').value) $('aDist').value = area.district || $('fDist').value;
+  if (!$('aThana').value) $('aThana').value = area.thana || $('fThana').value;
+}
+$('aSave').onclick = async () => {
+  const name = $('aName').value.trim(), parent = $('aParent').value.trim(), phone = toEn($('aPhone').value);
+  const district = $('aDist').value.trim(), thana = $('aThana').value.trim();
+  const v = Math.max(1, Math.min(99, +$('aVil').value || 1)), u = Math.max(1, Math.min(99, +$('aUni').value || 1));
+  const age = +$('aAge').value, teacherUid = $('aTea').value, pin = toEn($('aPw').value);
+  const m = $('aMsg'); $('aDone').hidden = true;
+  if (!name || !parent || phone.length !== 11 || !district || !thana){ say(m, 'নাম, পিতা/মাতার নাম, ১১ অংকের ফোন নম্বর, জেলা আর থানা দিন।', true); return; }
+  if (!teacherUid){ say(m, 'আগে "শিক্ষক" পাতা থেকে একজন শিক্ষক যোগ করুন।', true); return; }
+  if (!/^\d{5}$/.test(pin)){ say(m, 'অভিভাবকের পাসওয়ার্ড ঠিক ৫ অংকের হতে হবে।', true); return; }
+  if (!navigator.onLine){ say(m, 'ভর্তির জন্য ইন্টারনেট চালু করুন।', true); return; }
+  $('aSave').disabled = true; say(m, 'ভর্তি হচ্ছে…');
+  try {
+    const kids = await getDocs(query(collection(db, 'students'), where('guardianPhone', '==', phone)));
+    if (kids.size >= MAX_CHILDREN) throw { mine: `এই অভিভাবকের ইতিমধ্যে ${bn(MAX_CHILDREN)} জন সন্তান ভর্তি আছে। এক অভিভাবকের সর্বোচ্চ ${bn(MAX_CHILDREN)} জন।` };
+    const g = await ensureGuardian(phone, parent, pin);
+    // the next free roll number for this village + union; a number is never given twice, even after a deletion
+    const ckey = [district, thana, v, u].join('|');
+    const serial = await runTransaction(db, async tx => {
+      const ref = doc(db, 'counters', ckey); const c = await tx.get(ref);
+      const n = (c.exists() ? c.data().last : 0) + 1; tx.set(ref, { last: n }); return n;
+    });
+    const s = { name, parentName: parent, guardianPhone: phone, teacherUid, district, thana, v, u, admitAge: age, admitYear: nowYear(), serial, createdBy: me.uid, createdAt: serverTimestamp() };
+    await setDoc(doc(collection(db, 'students')), s);
+    if (!settings.areas.some(a => a.district === district && a.thana === thana))
+      await setDoc(doc(db, 'settings', 'app'), { areas: arrayUnion({ district, thana }) }, { merge: true });
+    say(m, '');
+    $('aDone').innerHTML = `<div><b>${esc(name)}</b> ভর্তি হয়েছে।</div><div>রোল: <b class="big">${roll(s)}</b></div>` +
+      (g.existed ? '<div>অভিভাবক আগে থেকেই Lupce-এ আছেন, তাঁর আগের পাসওয়ার্ডই থাকল।</div>'
+                 : `<div>অভিভাবকের লগইন — ফোন: <b>${phone}</b> · পাসওয়ার্ড: <b class="big">${pin}</b></div><div class="note">পাসওয়ার্ড এখনই অভিভাবককে জানিয়ে দিন, পরে আর দেখা যাবে না।</div>`);
+    $('aDone').hidden = false;
+    $('aName').value = $('aParent').value = $('aPhone').value = ''; $('aPw').value = newPin();
+  } catch(e){
+    say(m, e.mine || (e.code === 'auth/email-already-in-use' ? 'এই ফোন নম্বরে আগে থেকে একটা লগইন আছে। "শিক্ষার্থী" পাতা থেকে পাসওয়ার্ড নতুন করে দিন।' : 'ভর্তি হয়নি: ' + (e.code || e.message)), true);
+  }
+  $('aSave').disabled = false;
+};
+
+// ---------- teachers ----------
+function renderTeachers(){
+  $('teaList').innerHTML = teachers.length ? teachers.map(t => {
+    const n = students.filter(s => s.teacherUid === t.uid).length;
+    return `<div class="item"><div class="top"><span class="n">${esc(t.name)}</span><span class="pill">${bn(n)} জন (এই এলাকায়)</span></div><div class="r">ফোন: ${bn(t.phone)} · ${esc(t.district || '')} › ${esc(t.thana || '')}</div></div>`;
+  }).join('') : '<div class="note">এখনো কোনো শিক্ষক নেই। নিচে যোগ করুন।</div>';
+}
+$('tSave').onclick = async () => {
+  const name = $('tName').value.trim(), phone = toEn($('tPhone').value), pw = $('tPw').value;
+  const district = $('tDist').value.trim(), thana = $('tThana').value.trim(), m = $('tMsg');
+  if (!name || phone.length !== 11 || pw.length < 6){ say(m, 'নাম, ১১ অংকের ফোন নম্বর আর অন্তত ৬ অক্ষরের পাসওয়ার্ড দিন।', true); return; }
+  if (!navigator.onLine){ say(m, 'শিক্ষক যোগ করতে ইন্টারনেট চালু করুন।', true); return; }
+  $('tSave').disabled = true; say(m, 'যোগ হচ্ছে…');
+  try {
+    const uid = await makeLogin(phone + DOMAIN, pw);
+    await setDoc(doc(db, 'users', uid), { role: 'teacher', name, phone, district, thana, createdBy: me.uid, createdAt: serverTimestamp() });
+    say(m, `${name} যোগ হয়েছেন। লগইন — ফোন: ${phone} · পাসওয়ার্ড: ${pw} (এখনই জানিয়ে দিন)`);
+    $('tName').value = $('tPhone').value = $('tPw').value = '';
+  } catch(e){ say(m, e.code === 'auth/email-already-in-use' ? 'এই ফোন নম্বরে আগে থেকে লগইন আছে।' : 'যোগ হয়নি: ' + (e.code || e.message), true); }
+  $('tSave').disabled = false;
+};
+
+// ---------- admins ----------
+const scopeTxt = s => !s || s.type === 'all' ? 'সব এলাকা' : s.type === 'district' ? 'জেলা: ' + s.district : 'থানা: ' + s.thana;
+let askAdm = null;
+function renderAdmins(){
+  const box = $('admList'); box.innerHTML = '';
+  const list = admins.slice().sort((a, b) => (b.uid === MAIN_ADMIN) - (a.uid === MAIN_ADMIN));
+  list.forEach(a => {
+    const main = a.uid === MAIN_ADMIN;
+    const d = document.createElement('div'); d.className = 'item';
+    d.innerHTML = `<div class="top"><span class="n">${esc(a.name)}${main ? ' (প্রধান)' : ''}</span><span class="pill">${esc(scopeTxt(a.scope))}</span></div><div class="acts"><span class="r">ফোন: ${bn(a.phone)}</span>${main ? '' : '<button class="btn small danger">দায়িত্ব বাতিল</button>'}</div>`;
+    if (!main) d.querySelector('.danger').onclick = () => { askAdm = askAdm === a.uid ? null : a.uid; renderAdmins(); };
+    if (askAdm === a.uid){
+      const q = document.createElement('div'); q.className = 'ask';
+      q.innerHTML = `<span>${esc(a.name)}-এর এডমিন দায়িত্ব বাতিল করবেন?</span><button class="btn small danger">হ্যাঁ</button><button class="btn small ghost">না</button>`;
+      q.querySelector('.danger').onclick = () => { deleteDoc(doc(db, 'users', a.uid)); askAdm = null; };
+      q.querySelector('.ghost').onclick = () => { askAdm = null; renderAdmins(); };
+      d.appendChild(q);
+    }
+    box.appendChild(d);
+  });
+}
+$('dScope').onchange = () => { $('dAreaRow').hidden = $('dScope').value === 'all'; $('dThana').parentElement.hidden = $('dScope').value !== 'thana'; };
+$('dSave').onclick = async () => {
+  const name = $('dName').value.trim(), phone = toEn($('dPhone').value), pw = $('dPw').value, type = $('dScope').value, m = $('dMsg');
+  if (!name || phone.length !== 11 || pw.length < 6){ say(m, 'নাম, ১১ অংকের ফোন নম্বর আর অন্তত ৬ অক্ষরের পাসওয়ার্ড দিন।', true); return; }
+  const scope = { type }; if (type !== 'all') scope.district = $('dDist').value.trim(); if (type === 'thana') scope.thana = $('dThana').value.trim();
+  if (!navigator.onLine){ say(m, 'এডমিন যোগ করতে ইন্টারনেট চালু করুন।', true); return; }
+  $('dSave').disabled = true; say(m, 'যোগ হচ্ছে…');
+  try {
+    const uid = await makeLogin(phone + DOMAIN, pw);
+    await setDoc(doc(db, 'users', uid), { role: 'admin', name, phone, scope, createdBy: me.uid, createdAt: serverTimestamp() });
+    say(m, `${name}-কে এডমিনের দায়িত্ব দেওয়া হয়েছে (${scopeTxt(scope)})। লগইন — ফোন: ${phone} · পাসওয়ার্ড: ${pw}`);
+    $('dName').value = $('dPhone').value = $('dPw').value = '';
+  } catch(e){ say(m, e.code === 'auth/email-already-in-use' ? 'এই ফোন নম্বরে আগে থেকে লগইন আছে।' : 'যোগ হয়নি: ' + (e.code || e.message), true); }
+  $('dSave').disabled = false;
+};
+
+// ---------- settings ----------
+const fmtDate = d => `${bn(+d.slice(8))} ${months[+d.slice(5, 7) - 1]} ${bn(d.slice(0, 4))}`;
+function renderSettings(){
+  if (document.activeElement !== $('sLimit')) $('sLimit').value = settings.leaveLimit;
+  if (document.activeElement !== $('feeAmt')) $('feeAmt').value = settings.fee;
+  if (document.activeElement !== $('feePay')) $('feePay').value = settings.payNumber || '';
+  $('holList').innerHTML = settings.holidays.length ? settings.holidays.slice().sort((a, b) => a.date.localeCompare(b.date)).map(h => `<div class="item"><div class="top"><span class="n">${esc(h.name)}</span><span class="r">${fmtDate(h.date)}</span></div></div>`).join('') : '<div class="note">এখনো কোনো বড় ছুটি যোগ করা হয়নি।</div>';
+}
+$('sLimitSave').onclick = () => { const n = Math.max(0, Math.round(+$('sLimit').value || 0)); setDoc(doc(db, 'settings', 'app'), { leaveLimit: n }, { merge: true }); say($('sMsg'), `সংরক্ষিত: বছরে সর্বোচ্চ ${bn(n)}টি ছুটি।`); };
+$('hSave').onclick = () => { const n = $('hName').value.trim(), d = $('hDate').value; if (!n || !d) return; setDoc(doc(db, 'settings', 'app'), { holidays: arrayUnion({ name: n, date: d }) }, { merge: true }); $('hName').value = ''; };
+
+// ---------- monthly fee ----------
+let feeView = 'all';
+function watchFees(){
+  if (unsub.fee) unsub.fee();
+  const m = ym(new Date());
+  unsub.fee = onSnapshot(query(collection(db, 'fees'), where('month', '==', m)), s => { feeDocs = {}; s.docs.forEach(d => feeDocs[d.data().guardianPhone] = Object.assign({ id: d.id }, d.data())); renderFee(); });
+}
+$('feeSave').onclick = () => { const n = Math.max(0, Math.round(+$('feeAmt').value || 0)), pn = toEn($('feePay').value); setDoc(doc(db, 'settings', 'app'), { fee: n, payNumber: pn }, { merge: true }); say($('feeMsg'), `সংরক্ষিত: প্রতি পরিবারের মাসিক ফি ৳${bn(n)}` + (pn ? ` · ফি পাঠানোর নম্বর ${pn}` : '') + '।'); };
+function renderFee(){
+  const d = new Date(); $('feeMonthH').textContent = `${months[d.getMonth()]} ${bn(d.getFullYear())}-এর ফি`;
+  const fam = {};
+  students.forEach(s => { (fam[s.guardianPhone] = fam[s.guardianPhone] || { parent: s.parentName, kids: [], teacherUid: s.teacherUid }).kids.push(s.name); });
+  const keys = Object.keys(fam), paid = keys.filter(k => feeDocs[k] && feeDocs[k].status === 'paid'), due = keys.filter(k => !paid.includes(k));
+  const got = paid.reduce((a, k) => a + (feeDocs[k].amount || settings.fee), 0);
+  const tile = (v, b, s, cls) => `<button data-v="${v}" class="${cls || ''}" aria-pressed="${feeView === v}"><b>${b}</b><span>${s}</span></button>`;
+  $('feeStats').innerHTML = tile('all', bn(keys.length), 'পরিবার') + tile('paid', bn(paid.length), 'দিয়েছে') + tile('got', '৳' + bn(got), 'আদায়') + tile('due', '৳' + bn(due.length * settings.fee), 'বকেয়া', 'dueT');
+  $('feeStats').querySelectorAll('button').forEach(b => b.onclick = () => { feeView = b.dataset.v; renderFee(); });
+  const list = { all: keys, paid, got: paid, due }[feeView];
+  const title = { all: 'সব পরিবার', paid: 'যারা ফি দিয়েছেন', got: 'এ মাসের আদায়', due: 'যাদের ফি বকেয়া' }[feeView];
+  const box = $('feeList'); box.innerHTML = `<div class="listT">${title} (${bn(list.length)})</div>`;
+  if (!area.district){ box.innerHTML += '<div class="note">উপরে এলাকা বাছাই করুন।</div>'; return; }
+  list.forEach(k => {
+    const f = feeDocs[k], isPaid = f && f.status === 'paid';
+    const el = document.createElement('div'); el.className = 'item';
+    el.innerHTML = `<div class="top"><span class="n">${esc(fam[k].parent)}</span><span class="pill ${isPaid ? '' : 'due'}">${isPaid ? (feeView === 'got' ? '৳' + bn(f.amount) : 'দিয়েছে · ' + esc(f.via)) : 'বকেয়া ৳' + bn(settings.fee)}</span></div>
+      <div class="r">${isPaid && f.tx ? 'লেনদেন নম্বর ' + esc(f.tx) + ' · ' : ''}ফোন: ${bn(k)} · ${bn(fam[k].kids.length)} জন সন্তান: ${esc(fam[k].kids.join(', '))}</div>`;
+    if (!isPaid){
+      const row = document.createElement('div'); row.className = 'acts';
+      row.innerHTML = `<select aria-label="কীভাবে দিয়েছে"><option>বিকাশ</option><option>নগদ</option><option>নগদ টাকা (হাতে)</option></select><input placeholder="লেনদেন নম্বর (TrxID)" style="flex:1;min-width:8em;font-size:16px;padding:5px 8px"><button class="btn small">পরিশোধ হিসেবে রাখুন</button>`;
+      row.querySelector('button').onclick = () => setDoc(doc(db, 'fees', `${k}_${ym(new Date())}`), { guardianPhone: k, month: ym(new Date()), status: 'paid', via: row.querySelector('select').value, tx: row.querySelector('input').value.trim(), amount: settings.fee, teacherUid: fam[k].teacherUid, confirmedBy: me.uid, at: serverTimestamp() });
+      el.appendChild(row);
+    }
+    box.appendChild(el);
+  });
+}
+
+// ---------- certificate (from the teacher's weekly marks) ----------
+const friOf = m => m.friday || (() => { const d = new Date(+m.weekStart.slice(0, 4), +m.weekStart.slice(5, 7) - 1, +m.weekStart.slice(8, 10) + 6); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
+function grade(p){ return p >= 90 ? 'অসাধারণ' : p >= 80 ? 'খুব ভালো' : p >= 70 ? 'ভালো' : p >= 60 ? 'সন্তোষজনক' : 'আরও চেষ্টা দরকার'; }
+function renderCertPick(){
+  const keep = $('cStu').value;
+  $('cStu').innerHTML = students.map(s => `<option value="${s.id}" ${s.id === keep ? 'selected' : ''}>${esc(s.name)} · ${roll(s)}</option>`).join('') || '<option value="">এই এলাকায় শিক্ষার্থী নেই</option>';
+  if (!$('cYear').options.length){ const y = nowYear(); $('cYear').innerHTML = [y, y - 1].map(x => `<option value="${x}">${bn(x)}</option>`).join(''); }
+  renderCert();
+}
+async function renderCert(){
+  const s = students.find(x => x.id === $('cStu').value);
+  if (!s){ $('cert').innerHTML = '<div class="note">উপরে এলাকা বাছাই করে শিক্ষার্থী বেছে নিন।</div>'; return; }
+  const year = +$('cYear').value;
+  let marks = [];
+  try { marks = (await getDocs(query(collection(db, 'marks'), where('studentId', '==', s.id)))).docs.map(d => d.data()).filter(m => m.weekStart && friOf(m).startsWith(String(year))); } catch(e) {}
+  const per = Array.from({ length: 12 }, () => ({ got: 0, tot: 0 }));
+  let present = 0, leave = 0;
+  marks.forEach(m => { const mo = +friOf(m).slice(5, 7) - 1; per[mo].got += (m.read || 0) + (m.att === 'present' ? (m.pres || 0) : 0); per[mo].tot += m.att === 'leave' ? 5 : 10; if (m.att === 'present') present++; if (m.att === 'leave') leave++; });
+  const G = per.reduce((a, x) => a + x.got, 0), T = per.reduce((a, x) => a + x.tot, 0), pct = T ? Math.round(G / T * 100) : 0;
+  const rows = per.map((x, i) => x.tot ? `<tr><td>${months[i]}</td><td>${bn(x.got)}</td><td>${bn(x.tot)}</td><td>${bn(Math.round(x.got / x.tot * 100))}%</td></tr>` : '').join('');
+  const age = s.admitAge + (year - s.admitYear), part = age < 10 ? 'English Part ' + 'ABCD'[Math.max(0, Math.min(3, age - 6))] : 'English (১০+)';
+  $('cert').innerHTML = `<div class="head"><div class="l">Lupce8Teen</div><div class="t">বার্ষিক ফলাফল সনদ – ${bn(year)}</div></div>
+    <dl><dt>নাম</dt><dd>${esc(s.name)}</dd><dt>পিতা/মাতা</dt><dd>${esc(s.parentName)}</dd><dt>রোল</dt><dd>${roll(s)}</dd><dt>এলাকা</dt><dd>${esc(s.district)} › ${esc(s.thana)}</dd><dt>বয়স</dt><dd>${bn(age)} বছর · ${part}</dd></dl>
+    ${T ? `<div class="tbl"><table><thead><tr><th>মাস</th><th>পেয়েছে</th><th>মোট</th><th>শতকরা</th></tr></thead><tbody>${rows}</tbody>
+    <tfoot><tr><td>সারা বছর</td><td>${bn(G)}</td><td>${bn(T)}</td><td>${bn(pct)}%</td></tr></tfoot></table></div>
+    <dl><dt>শুক্রবার উপস্থিত</dt><dd>${bn(present)}/${bn(marks.length)} · ছুটি ${bn(leave)}</dd></dl>
+    <div class="grade">${grade(pct)}</div>` : '<div class="note">এ বছরের কোনো সাপ্তাহিক নম্বর এখনো আসেনি। শিক্ষক নম্বর দিলে এখানে নিজে থেকে দেখাবে।</div>'}
+    <div class="sign"><div>শিক্ষকের স্বাক্ষর<br>${esc(teacherName(s.teacherUid))}</div><div>এডমিনের স্বাক্ষর<br>${esc(profile.name || '')}</div></div>`;
+}
+$('cStu').onchange = renderCert; $('cYear').onchange = renderCert;
+
+const SHEET_CSS = `*{box-sizing:border-box;margin:0}
+.sheet{width:794px;height:1123px;padding:38px;background:#ffffff;color:#17302a;font-family:"Nirmala UI","Noto Sans Bengali","Vrinda","Shonar Bangla",sans-serif;font-size:15px;line-height:1.4}
+.cert{position:relative;overflow:hidden;width:100%;height:100%;background:#fffdf7;border:6px double #1f7a5a;padding:42px 52px;display:flex;flex-direction:column;justify-content:space-between}
+.cert>*{position:relative;z-index:1}
+.cert::before{content:"Lupce8Teen";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-55deg);font-family:"Segoe UI",Arial,sans-serif;font-weight:700;font-size:168px;color:#1f7a5a;opacity:.08;white-space:nowrap;z-index:0;letter-spacing:2px}
+.head{text-align:center}.l{font-size:40px;font-weight:700;color:#1f7a5a;line-height:1.15}.t{font-size:21px;font-weight:700}
+dl{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:15.5px}dt{color:#4d615a}dd{margin:0;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14.5px}th,td{padding:3px 10px;border-bottom:1px solid #c9d6cf;text-align:left}
+th{color:#4d615a;font-weight:600}tfoot td{font-weight:700;border-top:2px solid #1f7a5a}
+.grade{text-align:center;font-size:30px;font-weight:700;color:#1f7a5a}
+.sign{display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:14px;text-align:center;margin-top:20px}.sign div{border-top:1px solid #17302a;padding-top:5px}
+.note{color:#4d615a}`;
+function certImage(){
+  return new Promise((ok, fail) => {
+    const sheet = document.createElement('div'); sheet.className = 'sheet';
+    const st = document.createElement('style'); st.textContent = SHEET_CSS; sheet.appendChild(st);
+    const c = document.createElement('div'); c.className = 'cert'; c.innerHTML = $('cert').innerHTML; sheet.appendChild(c);
+    const xhtml = new XMLSerializer().serializeToString(sheet);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123"><foreignObject x="0" y="0" width="794" height="1123">${xhtml}</foreignObject></svg>`;
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement('canvas'); cv.width = 794 * 2.5; cv.height = 1123 * 2.5;
+      const ctx = cv.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      try { ok({ data: cv.toDataURL('image/jpeg', 0.95), w: cv.width, h: cv.height }); } catch(e) { fail(e); }
+    };
+    img.onerror = fail;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
+function jpegToPdf(dataUrl, w, h){
+  const bin = atob(dataUrl.split(',')[1]), jpg = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) jpg[i] = bin.charCodeAt(i);
+  const enc = new TextEncoder(), parts = [], offs = []; let len = 0;
+  const add = x => { const b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; };
+  const obj = (n, body) => { offs[n] = len; add(`${n} 0 obj\n`); body(); add('\nendobj\n'); };
+  const W = 595.28, H = 841.89, content = `q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
+  add('%PDF-1.4\n');
+  obj(1, () => add('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(2, () => add('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'));
+  obj(3, () => add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`));
+  obj(4, () => { add(`<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); add(jpg); add('\nendstream'); });
+  obj(5, () => add(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`));
+  const xref = len;
+  add(`xref\n0 6\n0000000000 65535 f \n${[1,2,3,4,5].map(n => String(offs[n]).padStart(10, '0') + ' 00000 n \n').join('')}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(parts, { type: 'application/pdf' });
+}
+$('pdfBtn').onclick = async () => {
+  const s = students.find(x => x.id === $('cStu').value); if (!s) return;
+  say($('pdfMsg'), 'PDF তৈরি হচ্ছে…');
+  try {
+    const im = await certImage(), url = URL.createObjectURL(jpegToPdf(im.data, im.w, im.h));
+    const a = document.createElement('a'); a.href = url; a.download = `Lupce-sonod-${roll(s)}-${$('cYear').value}.pdf`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+    say($('pdfMsg'), 'PDF ডাউনলোড হয়েছে।');
+  } catch(e){ say($('pdfMsg'), 'PDF তৈরি হয়নি। আবার চেষ্টা করুন।', true); }
+};
+$('printBtn').onclick = () => { const w = window.open('', '_blank'); if (!w){ say($('pdfMsg'), 'প্রিন্টের জানালা খোলা যায়নি।', true); return; }
+  w.document.write(`<!doctype html><meta charset="utf-8"><title>Lupce সনদ</title><style>@page{size:A4;margin:0}body{margin:0}${SHEET_CSS}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style><div class="sheet"><div class="cert">${$('cert').innerHTML}</div></div><script>onload=()=>{print()}<\/script>`); w.document.close(); };
+
+// ---------- works offline: keep the app itself on the device ----------
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+renderNet();
+</script>
+</body>
+</html>
