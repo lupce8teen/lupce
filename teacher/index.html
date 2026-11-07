@@ -187,6 +187,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 
       <button class="back wide" id="backBot" hidden>‹ মূল পাতায় ফিরুন</button>
       <button class="back wide" id="logout">লগআউট</button>
+    <div class="card" id="logoutAsk" hidden style="border:2px solid #b3372b">
+      <div style="font-weight:700;font-size:18px">লগআউট করবেন?</div>
+      <div>লগআউট করলে আবার ঢুকতে ইন্টারনেট আর পাসওয়ার্ড লাগবে। নিজের ফোনে লগআউট দরকার নেই — শুধু অ্যাপ বন্ধ করুন।</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn" id="logoutYes" style="background:#b3372b;color:#fff">হ্যাঁ, লগআউট</button><button class="btn ghost" id="logoutNo">না, থাকুক</button></div>
+    </div>
     </div>
 
     <!-- one student -->
@@ -316,7 +321,10 @@ $('lgGo').onclick = async () => {
   $('lgGo').disabled = false;
 };
 $('lgPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgGo').click(); });
-$('logout').onclick = () => signOut(auth);
+// ask first: after logging out, getting back in needs internet
+$('logout').onclick = () => { $('logoutAsk').hidden = false; $('logoutAsk').scrollIntoView({ block: 'center' }); };
+$('logoutNo').onclick = () => { $('logoutAsk').hidden = true; };
+$('logoutYes').onclick = () => { $('logoutAsk').hidden = true; signOut(auth); };
 
 // the profile saved on this device is used first, so the app opens without internet; it is refreshed when online
 async function loadProfile(uid){
@@ -603,7 +611,7 @@ function show(t){
   if (t === 'one'){ openStudent(cur); return; }
   $('detailView').hidden = true; $('listView').hidden = false;
   $('menu').hidden = $('heroMain').hidden = !!t;
-  $('backTop').hidden = $('backBot').hidden = $('pageT').hidden = !t; $('logout').hidden = !!t;
+  $('backTop').hidden = $('backBot').hidden = $('pageT').hidden = !t; $('logout').hidden = !!t; $('logoutAsk').hidden = true;
   if (t) $('pageT').textContent = pages[t][1];
   document.querySelectorAll('#listView [data-p]').forEach(p => p.hidden = p.dataset.p !== t);
   if (t === 'stu') renderList(); if (t === 'due') renderDue();

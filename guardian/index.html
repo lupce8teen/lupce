@@ -215,6 +215,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 
     <button class="back wide" id="backBot" hidden>‹ মূল পাতায় ফিরুন</button>
     <button class="back wide" id="logout">লগআউট</button>
+    <div class="card" id="logoutAsk" hidden style="border:2px solid #b3372b">
+      <div style="font-weight:700;font-size:18px">লগআউট করবেন?</div>
+      <div>লগআউট করলে আবার ঢুকতে ইন্টারনেট আর পাসওয়ার্ড লাগবে। নিজের ফোনে লগআউট দরকার নেই — শুধু অ্যাপ বন্ধ করুন।</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn" id="logoutYes" style="background:#b3372b;color:#fff">হ্যাঁ, লগআউট</button><button class="btn ghost" id="logoutNo">না, থাকুক</button></div>
+    </div>
   </div>
 </div>
 
@@ -305,7 +310,10 @@ $('lgGo').onclick = async () => {
   $('lgGo').disabled = false;
 };
 $('lgPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgGo').click(); });
-$('logout').onclick = () => signOut(auth);
+// ask first: after logging out, getting back in needs internet
+$('logout').onclick = () => { $('logoutAsk').hidden = false; $('logoutAsk').scrollIntoView({ block: 'center' }); };
+$('logoutNo').onclick = () => { $('logoutAsk').hidden = true; };
+$('logoutYes').onclick = () => { $('logoutAsk').hidden = true; signOut(auth); };
 
 // the profile saved on this device is used first, so the app opens without internet; it is refreshed when online
 async function loadProfile(uid){
@@ -476,6 +484,7 @@ function renderFee(){
   $('feeAmt').textContent = '৳' + bn(settings.fee);
   $('feeFor').textContent = `${label} · পরিবারের ${bn(kids.length)} জন সন্তানের জন্য`;
   $('feeTag').textContent = paid ? 'পরিশোধিত' : 'বাকি';
+  $('feeTag').style.cssText = paid ? '' : 'background:#b3372b;color:#ffffff';
   $('feeMenuS').textContent = paid ? '✓ এ মাসের ফি পরিশোধিত' : `⚠ এ মাসের ফি ৳${bn(settings.fee)} বাকি`;
   $('feeMenuS').className = paid ? 'paid-s' : 'due-s';
   const show = !paid && today.getDate() > DUE_DAY && !!notice;
@@ -498,7 +507,7 @@ const pages = { study: ['study', 'আজকের পড়া'], marks: ['marks
 let depth = 0, popping = false;
 function show(t){
   if (t && t !== 'fee' && !kid()) t = null;
-  $('menu').hidden = !!t; $('backTop').hidden = $('backBot').hidden = $('pageT').hidden = !t; $('logout').hidden = !!t;
+  $('menu').hidden = !!t; $('backTop').hidden = $('backBot').hidden = $('pageT').hidden = !t; $('logout').hidden = !!t; $('logoutAsk').hidden = true;
   if (t) $('pageT').textContent = pages[t][1];
   document.querySelectorAll('#appView > [data-p]').forEach(p => p.hidden = p.dataset.p !== t);
   if (t === 'study'){ sel = Math.max(0, week.findIndex(d => +d === +today)); renderStudyPage(); }
