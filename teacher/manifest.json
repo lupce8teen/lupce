@@ -1,7 +1,7 @@
 {
   "id": "./?app=teacher",
   "name": "Lupce-Teacher",
-  "short_name": "Lupce-Teacher",
+  "short_name": "L8 Teacher",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

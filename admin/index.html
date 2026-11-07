@@ -111,7 +111,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 <div class="app">
 
   <!-- login -->
-  <section class="card login" id="loginView">
+  <div class="note" id="bootView" style="text-align:center;padding:48px 0;font-size:18px">অ্যাপ খুলছে…</div>
+  <section class="card login" id="loginView" hidden>
     <div class="lt">Lupce8Teen<br>এডমিনের লগইন</div>
     <label class="f" for="lgPhone">ফোন নম্বর<input id="lgPhone" inputmode="tel" autocomplete="username" placeholder="01XXXXXXXXX"></label>
     <label class="f" for="lgPw">পাসওয়ার্ড<input type="password" id="lgPw" autocomplete="current-password"></label>
@@ -279,7 +280,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 <script type="module">
 import { initializeApp, deleteApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, runTransaction, serverTimestamp, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocFromCache, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, runTransaction, serverTimestamp, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBxHk_qTbHqmm2LfVkgUlt96ny8cOkjkLc",
@@ -343,16 +344,23 @@ $('lgGo').onclick = async () => {
 $('lgPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgGo').click(); });
 $('logout').onclick = () => signOut(auth);
 
+// the profile saved on this device is used first, so the app opens without internet; it is refreshed when online
+async function loadProfile(uid){
+  const ref = doc(db, 'users', uid);
+  try { const c = await getDocFromCache(ref); if (c.exists()) { getDoc(ref).catch(() => {}); return c; } } catch(e) {}
+  return await getDoc(ref);
+}
 let lastUid = null;
 onAuthStateChanged(auth, async user => {
   // Firebase can report the same log-in again (e.g. after refreshing it); keep the page where it is
   if (user && lastUid === user.uid && me) return;
   lastUid = user ? user.uid : null;
   Object.values(unsub).forEach(f => f && f()); unsub = { stu: null, fee: null };
-  if (!user){ me = profile = null; $('loginView').hidden = false; $('appView').hidden = true; return; }
+  if (!user){ me = profile = null; $('bootView').hidden = true; $('loginView').hidden = false; $('appView').hidden = true; return; }
   me = user;
   let snap = null;
-  try { snap = await getDoc(doc(db, 'users', user.uid)); } catch(e) {}
+  try { snap = await loadProfile(user.uid); } catch(e) {}
+  $('bootView').hidden = true;
   profile = snap && snap.exists() ? snap.data() : null;
   if (user.uid === MAIN_ADMIN && !profile){
     profile = { role: 'admin', main: true, name: 'প্রধান এডমিন', phone: user.email.replace(DOMAIN, ''), scope: { type: 'all' } };
@@ -739,5 +747,6 @@ $('printBtn').onclick = () => { const w = window.open('', '_blank'); if (!w){ sa
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 renderNet();
 </script>
+<script>setTimeout(function(){var b=document.getElementById("bootView");if(b&&!b.hidden){b.hidden=true;var a=document.getElementById("appView");if(a&&a.hidden)document.getElementById("loginView").hidden=false;}},10000);</script>
 </body>
 </html>

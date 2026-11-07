@@ -1,7 +1,7 @@
 {
   "id": "./?app=guardian",
   "name": "Lupce-Guardian",
-  "short_name": "Lupce-Guardian",
+  "short_name": "L8 Guardian",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

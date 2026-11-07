@@ -1,7 +1,7 @@
 {
   "id": "./?app=admin",
   "name": "Lupce-Admin",
-  "short_name": "Lupce-Admin",
+  "short_name": "L8 Admin",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

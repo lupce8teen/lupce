@@ -117,7 +117,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 <div class="app">
 
   <!-- login -->
-  <section class="card login" id="loginView">
+  <div class="note" id="bootView" style="text-align:center;padding:48px 0;font-size:18px">অ্যাপ খুলছে…</div>
+  <section class="card login" id="loginView" hidden>
     <div class="lt">Lupce8Teen<br>অভিভাবকের লগইন</div>
     <label class="f" for="lgPhone">ফোন নম্বর<input id="lgPhone" inputmode="tel" autocomplete="username" placeholder="01XXXXXXXXX"></label>
     <label class="f" for="lgPw">৫ অংকের পাসওয়ার্ড<input type="password" id="lgPw" inputmode="numeric" maxlength="5" autocomplete="current-password"></label>
@@ -219,7 +220,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, setDoc, onSnapshot, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocFromCache, setDoc, onSnapshot, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBxHk_qTbHqmm2LfVkgUlt96ny8cOkjkLc",
@@ -305,16 +306,22 @@ $('lgGo').onclick = async () => {
 $('lgPw').addEventListener('keydown', e => { if (e.key === 'Enter') $('lgGo').click(); });
 $('logout').onclick = () => signOut(auth);
 
+// the profile saved on this device is used first, so the app opens without internet; it is refreshed when online
+async function loadProfile(uid){
+  const ref = doc(db, 'users', uid);
+  try { const c = await getDocFromCache(ref); if (c.exists()) { getDoc(ref).catch(() => {}); return c; } } catch(e) {}
+  return await getDoc(ref);
+}
 let lastUid = null;
 onAuthStateChanged(auth, async user => {
   if (user && lastUid === user.uid && me) return;
   lastUid = user ? user.uid : null;
   unsub.forEach(f => f && f()); unsub = [];
-  if (!user){ me = profile = null; $('loginView').hidden = false; $('appView').hidden = true; return; }
+  if (!user){ me = profile = null; $('bootView').hidden = true; $('loginView').hidden = false; $('appView').hidden = true; return; }
   me = user;
   let snap = null;
-  try { snap = await getDoc(doc(db, 'users', user.uid)); }
-  catch(e){ say($('lgMsg'), 'তথ্য আনা যায়নি। ইন্টারনেট চালু করে আবার খুলুন।', true); $('loginView').hidden = false; return; }
+  try { snap = await loadProfile(user.uid); $('bootView').hidden = true; }
+  catch(e){ $('bootView').hidden = true; say($('lgMsg'), 'তথ্য আনা যায়নি। ইন্টারনেট চালু করে আবার খুলুন।', true); $('loginView').hidden = false; return; }
   profile = snap.exists() ? snap.data() : null;
   if (!profile){ say($('lgMsg'), 'আপনার পাসওয়ার্ড বদলানো হয়েছে। নতুন পাসওয়ার্ড দিয়ে ঢুকুন।', true); me = null; lastUid = null; signOut(auth); return; }
   if (profile.role !== 'guardian'){ say($('lgMsg'), 'এই অ্যাপ শুধু অভিভাবকের জন্য।', true); me = null; lastUid = null; signOut(auth); return; }
@@ -513,5 +520,6 @@ addEventListener('popstate', () => { if (!popping) depth = Math.max(0, depth - 1
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 renderNet();
 </script>
+<script>setTimeout(function(){var b=document.getElementById("bootView");if(b&&!b.hidden){b.hidden=true;var a=document.getElementById("appView");if(a&&a.hidden)document.getElementById("loginView").hidden=false;}},10000);</script>
 </body>
 </html>
