@@ -50,7 +50,8 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:16px;font-weight:60
 .menu button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
 .menu button b{font-family:var(--display);font-size:20px;color:var(--leaf);line-height:1.25}
 .menu button span{font-size:15px;color:var(--muted);line-height:1.4}
-.menu button span.due-s{color:#c2473a;font-weight:700}
+.menu button span.due-s{align-self:flex-start;margin-top:6px;background:#b3372b;color:#ffffff;font-size:19px;font-weight:700;border-radius:10px;padding:5px 12px;line-height:1.4}
+.menu button span.paid-s{align-self:flex-start;margin-top:6px;background:var(--leaf-soft);color:var(--ink);font-size:18px;font-weight:700;border-radius:10px;padding:4px 12px}
 .menu button:last-child:nth-child(odd){grid-column:1/-1}
 .back{font:inherit;font-size:17px;font-weight:600;align-self:flex-start;background:var(--surface);color:var(--ink);border:2px solid var(--leaf);border-radius:12px;padding:6px 14px;cursor:pointer}
 .back.wide{align-self:stretch;padding:10px}
@@ -475,8 +476,8 @@ function renderFee(){
   $('feeAmt').textContent = '৳' + bn(settings.fee);
   $('feeFor').textContent = `${label} · পরিবারের ${bn(kids.length)} জন সন্তানের জন্য`;
   $('feeTag').textContent = paid ? 'পরিশোধিত' : 'বাকি';
-  $('feeMenuS').textContent = paid ? '✓ এ মাসের ফি পরিশোধিত' : `এ মাসের ফি ৳${bn(settings.fee)} বাকি`;
-  $('feeMenuS').className = paid ? '' : 'due-s';
+  $('feeMenuS').textContent = paid ? '✓ এ মাসের ফি পরিশোধিত' : `⚠ এ মাসের ফি ৳${bn(settings.fee)} বাকি`;
+  $('feeMenuS').className = paid ? 'paid-s' : 'due-s';
   const show = !paid && today.getDate() > DUE_DAY && !!notice;
   $('due').hidden = !show;
   if (show){

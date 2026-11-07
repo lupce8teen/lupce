@@ -382,7 +382,10 @@ function renderAll(){
   const holiday = settings.holidays.find(h => h.date === iso(friday));
   $('heroM').textContent = `${bn(students.length)} জন শিক্ষার্থী · ${profile.district || ''} › ${profile.thana || ''}`;
   $('wkLabel').textContent = `শুক্রবার ${shortDate(friday)}` + (holiday ? ` · ${holiday.name}` : '');
-  $('wkNext').disabled = iso(friday) >= iso(lastFriday(new Date()));
+  // the teacher can also look at the week that is still going on (up to its coming Friday)
+  const t = new Date(), limit = t.getDay() === 5 ? t : addDays(lastFriday(t), 7);
+  $('wkNext').disabled = iso(friday) >= iso(limit);
+  $('wkLabel').textContent += iso(friday) > iso(t) ? ' (চলতি সপ্তাহ)' : '';
   if (!$('listView').hidden) { renderList(); renderDue(); }
   if (!$('detailView').hidden && cur) openStudent(cur, true);
 }
