@@ -340,7 +340,8 @@ $('lgGo').onclick = async () => {
   const ph = toEn($('lgPhone').value), pw = $('lgPw').value;
   if (ph.length < 11 || !pw){ say($('lgMsg'), 'ফোন নম্বর আর পাসওয়ার্ড দিন।', true); return; }
   $('lgGo').disabled = true; say($('lgMsg'), 'ঢোকা হচ্ছে…');
-  try { await signInWithEmailAndPassword(auth, ph + DOMAIN, pw); }
+  try { let email = ph + DOMAIN; try { const l = await getDoc(doc(db, 'logins', 'staff_' + ph)); if (l.exists() && l.data().email) email = l.data().email; } catch(e) {}
+        try { await signInWithEmailAndPassword(auth, email, pw); } catch(e1){ if (email === ph + DOMAIN) throw e1; await signInWithEmailAndPassword(auth, ph + DOMAIN, pw); } }
   catch(e){
     say($('lgMsg'), !navigator.onLine ? 'প্রথমবার ঢুকতে ইন্টারনেট লাগবে।' : 'ফোন নম্বর বা পাসওয়ার্ড মিলছে না।', true);
   }
@@ -391,7 +392,12 @@ function startListeners(){
     pendingWrites = s.metadata.hasPendingWrites; renderNet();
     $('distList').innerHTML = [...new Set(settings.areas.map(a => a.district))].map(d => `<option value="${esc(d)}">`).join('');
     $('thanaList').innerHTML = settings.areas.map(a => `<option value="${esc(a.thana)}">`).join('');
-    if (!area.district && settings.areas.length && !$('fDist').value){ $('fDist').value = settings.areas[0].district; $('fThana').value = settings.areas[0].thana; }
+    if (!area.district && !$('fDist').value){
+      let a = null; try { a = JSON.parse(localStorage.getItem('lupce-area') || 'null'); } catch(e) {}
+      a = a || settings.areas[0] || { district: 'চাঁদপুর', thana: 'হাইমচর' };
+      $('fDist').value = a.district; $('fThana').value = a.thana;
+      if (needsArea[curPage]) loadArea();
+    }
     renderSettings(); renderFee();
   });
   onSnapshot(query(collection(db, 'users'), where('role', '==', 'teacher')), s => {
@@ -405,6 +411,7 @@ function loadArea(){
   const d = $('fDist').value.trim(), t = $('fThana').value.trim();
   if (!d || !t){ $('areaNote').textContent = 'জেলা আর থানা দুটোই লিখুন।'; return; }
   area = { district: d, thana: t };
+  try { localStorage.setItem('lupce-area', JSON.stringify(area)); } catch(e) {}
   if (unsub.stu) unsub.stu();
   $('areaNote').textContent = 'তথ্য আসছে…';
   unsub.stu = onSnapshot(query(collection(db, 'students'), where('district', '==', d), where('thana', '==', t)), { includeMetadataChanges: true }, s => {
@@ -421,7 +428,9 @@ $('fLoad').onclick = loadArea;
 const pages = { stu:['students','শিক্ষার্থী'], add:['admit','নতুন ভর্তি'], tea:['teachers','শিক্ষক'], adm:['admins','এডমিন'], set:['prefs','সেটিং'], cer:['certificate','সনদ'], fee:['fees','মাসিক ফি'] };
 const needsArea = { stu:1, fee:1, cer:1 };
 let pushed = false;
+let curPage = null;
 function show(t){
+  curPage = t;
   $('menu').hidden = !!t; $('backTop').hidden = $('backBot').hidden = $('pageT').hidden = !t;
   $('areaCard').hidden = !needsArea[t]; $('logout').hidden = !!t; $('logoutAsk').hidden = true;
   if (t) $('pageT').textContent = pages[t][1];
@@ -506,12 +515,21 @@ async function makeLogin(email, password){
   finally { try { await signOut(getAuth(tmp)); } catch(e) {} deleteApp(tmp).catch(() => {}); }
 }
 // guardian log-in: phone -> current e-mail id kept in logins/{phone}; a new PIN means a fresh log-in and the old one stops working
+// a new log-in for this phone; if an old (removed) log-in still exists for it, a fresh id is made, so a phone number can be used again
+async function freshLogin(phone, password){
+  try { return { email: phone + DOMAIN, uid: await makeLogin(phone + DOMAIN, password) }; }
+  catch(e){
+    if (e.code !== 'auth/email-already-in-use') throw e;
+    const email = `${phone}.${Date.now().toString(36)}${DOMAIN}`;
+    return { email, uid: await makeLogin(email, password) };
+  }
+}
 async function ensureGuardian(phone, name, pin){
   const l = await getDoc(doc(db, 'logins', phone));
   if (l.exists()) return { existed: true, uid: l.data().uid };
-  const uid = await makeLogin(phone + DOMAIN, GUARDIAN_PW(pin));
+  const { email, uid } = await freshLogin(phone, GUARDIAN_PW(pin));
   await setDoc(doc(db, 'users', uid), { role: 'guardian', name, phone, createdBy: me.uid, createdAt: serverTimestamp() });
-  await setDoc(doc(db, 'logins', phone), { email: phone + DOMAIN, uid });
+  await setDoc(doc(db, 'logins', phone), { email, uid });
   return { existed: false, uid };
 }
 async function resetGuardianPin(phone, name, pin){
@@ -587,7 +605,8 @@ function renderTeachers(){
       if (!navigator.onLine){ alertMsg(box, 'সরাতে ইন্টারনেট চালু করুন।'); return; }
       const has = await getDocs(query(collection(db, 'students'), where('teacherUid', '==', uid)));
       if (has.size){ alertMsg(box, `এই শিক্ষকের কাছে এখনো ${bn(has.size)} জন শিক্ষার্থী আছে। আগে "শিক্ষার্থী" পাতা থেকে তাদের অন্য শিক্ষককে দিন বা মুছুন।`); return; }
-      await deleteDoc(doc(db, 'users', uid)); askTea = null;
+      const tp = (teachers.find(x => x.uid === uid) || {}).phone;
+      await deleteDoc(doc(db, 'users', uid)); if (tp) await deleteDoc(doc(db, 'logins', 'staff_' + tp)).catch(() => {}); askTea = null;
     };
   });
 }
@@ -599,7 +618,9 @@ $('tSave').onclick = async () => {
   if (!navigator.onLine){ say(m, 'শিক্ষক যোগ করতে ইন্টারনেট চালু করুন।', true); return; }
   $('tSave').disabled = true; say(m, 'যোগ হচ্ছে…');
   try {
-    const uid = await makeLogin(phone + DOMAIN, pw);
+    if (teachers.some(x => x.phone === phone)) throw { code: 'auth/email-already-in-use' };
+    const { email, uid } = await freshLogin(phone, pw);
+    await setDoc(doc(db, 'logins', 'staff_' + phone), { email, uid });
     await setDoc(doc(db, 'users', uid), { role: 'teacher', name, phone, district, thana, createdBy: me.uid, createdAt: serverTimestamp() });
     say(m, `${name} যোগ হয়েছেন। লগইন — ফোন: ${phone} · পাসওয়ার্ড: ${pw} (এখনই জানিয়ে দিন)`);
     $('tName').value = $('tPhone').value = $('tPw').value = '';
@@ -636,7 +657,9 @@ $('dSave').onclick = async () => {
   if (!navigator.onLine){ say(m, 'এডমিন যোগ করতে ইন্টারনেট চালু করুন।', true); return; }
   $('dSave').disabled = true; say(m, 'যোগ হচ্ছে…');
   try {
-    const uid = await makeLogin(phone + DOMAIN, pw);
+    if (admins.some(x => x.phone === phone)) throw { code: 'auth/email-already-in-use' };
+    const { email, uid } = await freshLogin(phone, pw);
+    await setDoc(doc(db, 'logins', 'staff_' + phone), { email, uid });
     await setDoc(doc(db, 'users', uid), { role: 'admin', name, phone, scope, createdBy: me.uid, createdAt: serverTimestamp() });
     say(m, `${name}-কে এডমিনের দায়িত্ব দেওয়া হয়েছে (${scopeTxt(scope)})। লগইন — ফোন: ${phone} · পাসওয়ার্ড: ${pw}`);
     $('dName').value = $('dPhone').value = $('dPw').value = '';

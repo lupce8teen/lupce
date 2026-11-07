@@ -316,7 +316,8 @@ $('lgGo').onclick = async () => {
   const ph = toEn($('lgPhone').value), pw = $('lgPw').value;
   if (ph.length < 11 || !pw){ say($('lgMsg'), 'ফোন নম্বর আর পাসওয়ার্ড দিন।', true); return; }
   $('lgGo').disabled = true; say($('lgMsg'), 'ঢোকা হচ্ছে…');
-  try { await signInWithEmailAndPassword(auth, ph + DOMAIN, pw); }
+  try { let email = ph + DOMAIN; try { const l = await getDoc(doc(db, 'logins', 'staff_' + ph)); if (l.exists() && l.data().email) email = l.data().email; } catch(e) {}
+        try { await signInWithEmailAndPassword(auth, email, pw); } catch(e1){ if (email === ph + DOMAIN) throw e1; await signInWithEmailAndPassword(auth, ph + DOMAIN, pw); } }
   catch(e){ say($('lgMsg'), !navigator.onLine ? 'প্রথমবার ঢুকতে ইন্টারনেট লাগবে।' : 'ফোন নম্বর বা পাসওয়ার্ড মিলছে না। কীবোর্ড ইংরেজিতে আছে কি না দেখুন।', true); }
   $('lgGo').disabled = false;
 };
@@ -505,12 +506,21 @@ async function makeLogin(email, password){
   try { const c = await createUserWithEmailAndPassword(getAuth(tmp), email, password); return c.user.uid; }
   finally { try { await signOut(getAuth(tmp)); } catch(e) {} deleteApp(tmp).catch(() => {}); }
 }
+// a new log-in for this phone; if an old (removed) log-in still exists for it, a fresh id is made, so a phone number can be used again
+async function freshLogin(phone, password){
+  try { return { email: phone + DOMAIN, uid: await makeLogin(phone + DOMAIN, password) }; }
+  catch(e){
+    if (e.code !== 'auth/email-already-in-use') throw e;
+    const email = `${phone}.${Date.now().toString(36)}${DOMAIN}`;
+    return { email, uid: await makeLogin(email, password) };
+  }
+}
 async function ensureGuardian(phone, name, pin){
   const l = await getDoc(doc(db, 'logins', phone));
   if (l.exists()) return { existed: true, uid: l.data().uid };
-  const uid = await makeLogin(phone + DOMAIN, GUARDIAN_PW(pin));
+  const { email, uid } = await freshLogin(phone, GUARDIAN_PW(pin));
   await setDoc(doc(db, 'users', uid), { role: 'guardian', name, phone, createdBy: me.uid, createdAt: serverTimestamp() });
-  await setDoc(doc(db, 'logins', phone), { email: phone + DOMAIN, uid });
+  await setDoc(doc(db, 'logins', phone), { email, uid });
   return { existed: false, uid };
 }
 async function resetGuardianPin(phone, name, pin){
