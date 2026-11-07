@@ -9,15 +9,15 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: one phone-width column; main page = menu of big boxes; every inner page has back buttons top and bottom */
 :root{
   --bg:#eef3ef; --surface:#ffffff; --ink:#17302a; --muted:#5b6f68; --line:#d5e0da;
   --leaf:#1f7a5a; --leaf-soft:#dcefe6; --mango:#f2a516; --mango-soft:#fdf0d3;
   --good:#1f7a5a; --bad:#b3372b; --bad-soft:#f8e1de; --fill:#1f7a5a; --on-fill:#ffffff; --paper:#fffdf7;
-  --display:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
-  --body:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
+  --display:"Noto Sans Bengali",system-ui,sans-serif;
+  --body:"Noto Sans Bengali",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0f1a17; --surface:#16241f; --ink:#e4efe9; --muted:#a9bcb4; --line:#2a3b35;
@@ -746,7 +746,7 @@ async function renderCert(){
 $('cStu').onchange = renderCert; $('cYear').onchange = renderCert;
 
 const SHEET_CSS = `*{box-sizing:border-box;margin:0}
-.sheet{width:794px;height:1123px;padding:38px;background:#ffffff;color:#17302a;font-family:"Nirmala UI","Noto Sans Bengali","Vrinda","Shonar Bangla",sans-serif;font-size:15px;line-height:1.4}
+.sheet{width:794px;height:1123px;padding:38px;background:#ffffff;color:#17302a;font-family:"Noto Sans Bengali","Nirmala UI","Vrinda","Shonar Bangla",sans-serif;font-size:15px;line-height:1.4}
 .cert{position:relative;overflow:hidden;width:100%;height:100%;background:#fffdf7;border:6px double #1f7a5a;padding:42px 52px;display:flex;flex-direction:column;justify-content:space-between}
 .cert>*{position:relative;z-index:1}
 .cert::before{content:"Lupce8Teen";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-55deg);font-family:"Segoe UI",Arial,sans-serif;font-weight:700;font-size:168px;color:#1f7a5a;opacity:.08;white-space:nowrap;z-index:0;letter-spacing:2px}
@@ -757,10 +757,27 @@ th{color:#4d615a;font-weight:600}tfoot td{font-weight:700;border-top:2px solid #
 .grade{text-align:center;font-size:30px;font-weight:700;color:#1f7a5a}
 .sign{display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:14px;text-align:center;margin-top:20px}.sign div{border-top:1px solid #17302a;padding-top:5px}
 .note{color:#4d615a}`;
-function certImage(){
+// the certificate picture is drawn on its own, so the Noto Sans Bengali font is put inside it (read once, then kept)
+let certFontCss = null;
+async function loadCertFont(){
+  if (certFontCss !== null) return certFontCss;
+  try {
+    let css = await (await fetch('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap')).text();
+    const urls = [...new Set((css.match(/url\((https:[^)]+)\)/g) || []).map(u => u.slice(4, -1)))];
+    for (const u of urls){
+      const b = await (await fetch(u)).blob();
+      const d = await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); });
+      css = css.split(u).join(d);
+    }
+    certFontCss = css;
+  } catch(e) { certFontCss = ''; }
+  return certFontCss;
+}
+async function certImage(){
+  const fontCss = await loadCertFont();
   return new Promise((ok, fail) => {
     const sheet = document.createElement('div'); sheet.className = 'sheet';
-    const st = document.createElement('style'); st.textContent = SHEET_CSS; sheet.appendChild(st);
+    const st = document.createElement('style'); st.textContent = fontCss + SHEET_CSS; sheet.appendChild(st);
     const c = document.createElement('div'); c.className = 'cert'; c.innerHTML = $('cert').innerHTML; sheet.appendChild(c);
     const xhtml = new XMLSerializer().serializeToString(sheet);
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123"><foreignObject x="0" y="0" width="794" height="1123">${xhtml}</foreignObject></svg>`;
