@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lupce-Admin</title>
+<title>Lupce8Teen</title>
 <meta name="theme-color" content="#1f7a5a">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
@@ -36,13 +36,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18p
 .app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .app .app{width:100%;max-width:none}
 .brand{font-family:var(--display);font-weight:700;font-size:24px;color:var(--leaf);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.brand small{display:block;font-family:var(--body);font-weight:500;font-size:16px;color:var(--muted);margin-top:-4px}
-.net{font-size:15px;font-weight:600;border-radius:12px;padding:6px 12px;background:var(--leaf-soft);color:var(--ink)}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:18px;color:var(--muted);margin-top:-4px}
+.net{font-size:17px;font-weight:600;border-radius:12px;padding:6px 12px;background:var(--leaf-soft);color:var(--ink)}
 .net.off{background:var(--mango-soft)}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .menu button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
 .menu button b{font-family:var(--display);font-size:20px;color:var(--leaf);line-height:1.25}
-.menu button span{font-size:15px;color:var(--muted);line-height:1.4}
+.menu button span{font-size:17px;color:var(--muted);line-height:1.4}
 .menu button:last-child:nth-child(odd){grid-column:1/-1}
 .back{font:inherit;font-size:17px;font-weight:600;align-self:flex-start;background:var(--surface);color:var(--ink);border:2px solid var(--leaf);border-radius:12px;padding:6px 14px;cursor:pointer}
 .back.wide{align-self:stretch;padding:10px}
@@ -50,25 +50,25 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18p
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 .card h2{margin:0;font-family:var(--display);font-size:20px;font-weight:600}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-label.f{display:flex;flex-direction:column;gap:2px;font-size:16px;font-weight:600;min-width:0}
+label.f{display:flex;flex-direction:column;gap:2px;font-size:18px;font-weight:600;min-width:0}
 input,select{font:inherit;font-size:17px;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 10px}
 .btn{font:inherit;font-weight:600;font-size:17px;border:0;border-radius:14px;padding:11px;background:var(--fill);color:var(--on-fill);cursor:pointer}
 .btn:disabled{opacity:.5;cursor:wait}
-.btn.small{font-size:15px;padding:5px 12px;border-radius:10px}
+.btn.small{font-size:17px;padding:5px 12px;border-radius:10px}
 .btn.ghost{background:var(--surface);color:var(--ink);border:2px solid var(--leaf)}
 .btn.danger{background:#b3372b;color:#ffffff;font-weight:700;border:1px solid #8f2a20}
-.msg{font-size:16px;text-align:center;min-height:1.4em;color:var(--good)}
+.msg{font-size:18px;text-align:center;min-height:1.4em;color:var(--good)}
 .msg.err{color:var(--bad)}
-.note{font-size:16px;color:var(--muted)}
+.note{font-size:18px;color:var(--muted)}
 .item{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
 .item:first-child{border-top:0;padding-top:0}
 .item .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
 .item .n{font-weight:700}
-.item .r{font-size:16px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item .r{font-size:18px;color:var(--muted);font-variant-numeric:tabular-nums}
 .item .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.item .acts select{width:auto;flex:1;min-width:0;font-size:16px;padding:5px 8px}
-.ask{background:var(--bad-soft);border-radius:10px;padding:8px 10px;font-size:16px;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.pill{font-size:15px;font-weight:700;background:var(--leaf-soft);color:var(--leaf);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.item .acts select{width:auto;flex:1;min-width:0;font-size:18px;padding:5px 8px}
+.ask{background:var(--bad-soft);border-radius:10px;padding:8px 10px;font-size:18px;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-size:17px;font-weight:700;background:var(--leaf-soft);color:var(--leaf);border-radius:999px;padding:2px 10px;white-space:nowrap}
 .pill.due{background:#b3372b;color:#ffffff}
 .rollbox{background:var(--leaf-soft);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .rollbox b{font-size:22px;letter-spacing:.5px;font-variant-numeric:tabular-nums}
@@ -83,7 +83,7 @@ input,select{font:inherit;font-size:17px;width:100%;border:1px solid var(--line)
 .stats button[aria-pressed="true"]{border-color:var(--leaf);background:var(--leaf-soft)}
 .stats b{display:block;font-family:var(--display);font-size:22px;color:var(--leaf);font-variant-numeric:tabular-nums}
 .stats button.dueT b{color:#c2473a}
-.stats span{font-size:15px;color:var(--muted)}
+.stats span{font-size:17px;color:var(--muted)}
 .listT{font-weight:700;font-size:17px}
 .login .lt{font-family:var(--display);font-size:24px;font-weight:700;color:var(--leaf);line-height:1.2}
 #lgPw{font-size:20px;letter-spacing:2px}
@@ -94,15 +94,15 @@ input,select{font:inherit;font-size:17px;width:100%;border:1px solid var(--line)
 .cert .head{text-align:center}
 .cert .head .l{font-family:var(--display);font-size:26px;font-weight:700;color:var(--leaf);line-height:1.2}
 .cert .head .t{font-size:18px;font-weight:700}
-.cert dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0;font-size:16px}
+.cert dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0;font-size:18px}
 .cert dt{color:var(--muted)} .cert dd{margin:0;font-weight:600}
 .tbl{overflow-x:auto;overflow-y:hidden}
-table{width:100%;border-collapse:collapse;font-size:16px;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:18px;font-variant-numeric:tabular-nums}
 th,td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 th{color:var(--muted);font-weight:600}
 tfoot td{font-weight:700;border-top:2px solid var(--leaf)}
 .grade{text-align:center;font-family:var(--display);font-size:24px;font-weight:700;color:var(--leaf)}
-.sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;font-size:15px;text-align:center}
+.sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;font-size:17px;text-align:center}
 .sign div{border-top:1px solid var(--ink);padding-top:4px}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--mango);outline-offset:2px}
 </style>

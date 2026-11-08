@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lupce-Guardian</title>
+<title>Lupce8Teen</title>
 <meta name="theme-color" content="#a64a17">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
@@ -36,20 +36,20 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18p
 .app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .app .app{width:100%;max-width:none}
 .brand{font-family:var(--display);font-weight:700;font-size:24px;color:var(--leaf);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.brand small{display:block;font-family:var(--body);font-weight:500;font-size:16px;color:var(--muted);margin-top:-4px}
-.net{font-size:15px;font-weight:600;border-radius:12px;padding:6px 12px;background:var(--leaf-soft);color:var(--ink);text-align:right}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:18px;color:var(--muted);margin-top:-4px}
+.net{font-size:17px;font-weight:600;border-radius:12px;padding:6px 12px;background:var(--leaf-soft);color:var(--ink);text-align:right}
 .net.off{background:var(--mango-soft)}
 select,input{font:inherit;font-size:17px;width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:7px 10px}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:16px;font-weight:600;min-width:0}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:18px;font-weight:600;min-width:0}
 .student{background:var(--fill);color:var(--on-fill);border-radius:16px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:4px 12px}
 .student .name{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.2}
 .student .roll{font-variant-numeric:tabular-nums;font-size:17px;letter-spacing:.5px;opacity:.95}
-.student .meta{grid-column:1/-1;font-size:16px;opacity:.92}
-.student .age{align-self:start;background:rgba(255,255,255,.18);border-radius:999px;padding:2px 10px;font-size:16px;white-space:nowrap}
+.student .meta{grid-column:1/-1;font-size:18px;opacity:.92}
+.student .age{align-self:start;background:rgba(255,255,255,.18);border-radius:999px;padding:2px 10px;font-size:18px;white-space:nowrap}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .menu button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
 .menu button b{font-family:var(--display);font-size:20px;color:var(--leaf);line-height:1.25}
-.menu button span{font-size:15px;color:var(--muted);line-height:1.4}
+.menu button span{font-size:17px;color:var(--muted);line-height:1.4}
 .menu button span.due-s{align-self:flex-start;margin-top:6px;background:#b3372b;color:#ffffff;font-size:19px;font-weight:700;border-radius:10px;padding:5px 12px;line-height:1.4}
 .menu button span.paid-s{align-self:flex-start;margin-top:6px;background:var(--leaf-soft);color:var(--ink);font-size:18px;font-weight:700;border-radius:10px;padding:4px 12px}
 .menu button:last-child:nth-child(odd){grid-column:1/-1}
@@ -59,7 +59,7 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:16px;font-weight:60
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .day{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:6px 0 8px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-width:0}
 .day:disabled{opacity:.45;cursor:not-allowed}
-.day .dn{font-size:14px;color:var(--muted)}
+.day .dn{font-size:16px;color:var(--muted)}
 .day .dd{font-weight:700;font-size:20px;line-height:1.3;font-variant-numeric:tabular-nums}
 .day .dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
 .day.ok .dot{background:var(--good)} .day.miss .dot{background:var(--bad)}
@@ -68,7 +68,7 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:16px;font-weight:60
 .day[aria-pressed="true"]{outline:2px solid var(--leaf);outline-offset:1px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
 .card h2{margin:0;font-family:var(--display);font-size:20px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.card h2 .tag{font-family:var(--body);font-size:16px;font-weight:600;color:var(--leaf);background:var(--leaf-soft);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.card h2 .tag{font-family:var(--body);font-size:18px;font-weight:600;color:var(--leaf);background:var(--leaf-soft);border-radius:999px;padding:2px 10px;white-space:nowrap}
 .where{font-size:17px;color:var(--muted)} .where b{color:var(--ink);font-variant-numeric:tabular-nums}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .row .lbl{font-weight:600}
@@ -78,33 +78,33 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:16px;font-weight:60
 .tog button.n[aria-pressed="true"]{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700}
 .tog button:disabled{opacity:.4;cursor:not-allowed}
 .points{border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
-.points .ttl{font-size:16px;color:var(--muted)}
+.points .ttl{font-size:18px;color:var(--muted)}
 .btn{font:inherit;font-weight:600;font-size:17px;border:0;border-radius:14px;padding:12px;background:var(--fill);color:var(--on-fill);cursor:pointer}
 .btn:disabled{opacity:.5;cursor:wait}
 .btn.ghost{background:var(--surface);color:var(--ink);border:2px solid var(--leaf)}
-.msg{font-size:16px;text-align:center;min-height:1.5em;color:var(--good)}
+.msg{font-size:18px;text-align:center;min-height:1.5em;color:var(--good)}
 .msg.err{color:var(--bad)}
-.note{font-size:16px;color:var(--muted)}
+.note{font-size:18px;color:var(--muted)}
 .fri-card{background:var(--mango-soft);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
 .fri-card h2{margin:0;font-family:var(--display);font-size:20px}
 .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
 .summary div{background:var(--bg);border-radius:12px;padding:8px 4px}
 .summary b{display:block;font-family:var(--display);font-size:22px;color:var(--leaf);font-variant-numeric:tabular-nums}
-.summary span{font-size:15px;color:var(--muted)}
+.summary span{font-size:17px;color:var(--muted)}
 .sync{font-size:17px;font-weight:600;border-radius:12px;padding:10px 12px;background:var(--bg)}
 .due{background:#b3372b;color:#ffffff;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
 .due .dueT{font-family:var(--display);font-size:21px;font-weight:700;line-height:1.3}
 .due .dueT b{font-size:26px;font-variant-numeric:tabular-nums}
 .due .dueM{font-size:17px;line-height:1.5}
-.due .dueF{font-size:15px;opacity:.92}
+.due .dueF{font-size:17px;opacity:.92}
 .due .btn{background:#ffffff;color:#8f2a20;margin-top:4px}
 .feeAmt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .feeAmt b{font-family:var(--display);font-size:32px;color:var(--leaf);font-variant-numeric:tabular-nums}
-.feeAmt span{font-size:16px;color:var(--muted)}
-.hist{display:flex;flex-direction:column;gap:4px;font-size:16px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.feeAmt span{font-size:18px;color:var(--muted)}
+.hist{display:flex;flex-direction:column;gap:4px;font-size:18px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
 .hist div{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .tbl{overflow-x:auto;overflow-y:hidden}
-table{width:100%;border-collapse:collapse;font-size:16px;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:18px;font-variant-numeric:tabular-nums}
 th,td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 th{color:var(--muted);font-weight:600}
 tfoot td{font-weight:700;border-top:2px solid var(--leaf)}
