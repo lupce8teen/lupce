@@ -1,11 +1,11 @@
 {
   "id": "./?app=guardian",
-  "name": "Lupce8Teen",
-  "short_name": "Lupce8Teen",
+  "name": "L8 Guardian",
+  "short_name": "L8 Guardian",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1220",
+  "background_color": "#1f3c50",
   "theme_color": "#a64a17",
   "lang": "bn",
   "icons": [
